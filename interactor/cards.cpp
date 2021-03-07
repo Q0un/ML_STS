@@ -17,7 +17,7 @@ json Card::get_json() const {
     res["cost"] = cost;
     res["effects"] = json::array();
     for (auto &e : effects) {
-        res["effects"].emplace_back(make_pair(e.first, e.second));
+        res["effects"].emplace_back(std::make_pair(e.first, e.second));
     }
     return res;
 }

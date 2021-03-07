@@ -1,14 +1,11 @@
 #include "mob.h"
+#include "random.h"
 
-/*
-vector<Sample_Mob> mob_samples;
+std::vector<Sample_Mob> mob_samples;
 
 Mob::Mob(Mob_type type) : Entity() {
     hp = max_hp = mob_samples[type].hpl + rnd();
 }
-*/
-
-Mob::Mob(int hp, int dmg) : Entity(hp), dmg(dmg) {}
 
 Mob::Mob(json &info) : Entity() {
     load(info);

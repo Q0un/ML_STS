@@ -1,11 +1,8 @@
 #include "env.h"
-using namespace std;
-
-random_device rd;
-mt19937 rnd(rd());
+#include "random.h"
 
 Env::Env() {
-    logs = ofstream("../env.log");
+    logs = std::ofstream("../env.log");
 
     max_energy = 3;
     player = Player(80);
@@ -20,7 +17,7 @@ Env::Env() {
     deck.emplace_back(card);
     game_state = State::nothing;
 
-    logs << get_state() << endl;
+    logs << get_state() << std::endl;
 }
 
 Env::~Env() {
@@ -142,9 +139,9 @@ void Env::use_card(int card, int mob) {
     hand.erase(hand.begin() + card);
 }
 
-pair<json, double> Env::step(const Action &act) {
+std::pair<json, double> Env::step(const Action &act) {
     logs << act << ' ';
-    logs << endl;
+    logs << std::endl;
     double rew = 0;
     if (act.type == act_type::play) {
         int card = act.args[0];
@@ -175,7 +172,7 @@ pair<json, double> Env::step(const Action &act) {
         game_state = State::win;
     }
     json res = get_state();
-    logs << res << endl;
+    logs << res << std::endl;
 
     update_actions();
 
@@ -215,7 +212,7 @@ void Env::load(json &info) {
     update_actions();
 }
 
-pair<json, double> Env::get_result(json &snapshot, const Action &act) {
+std::pair<json, double> Env::get_result(json &snapshot, const Action &act) {
     auto snap2 = get_state();
     load(snapshot);
     auto res = step(act);
@@ -223,7 +220,7 @@ pair<json, double> Env::get_result(json &snapshot, const Action &act) {
     return res;
 }
 
-vector<Action> Env::get_acts() const {
+std::vector<Action> Env::get_acts() const {
     return available_acts;
 }
 
@@ -247,15 +244,11 @@ void Env::update_actions() {
         if (deck[hand[i]].get_cost() <= energy) {
             if (deck[hand[i]].get_type() == Card_type::attack) {
                 for (int j = 0; j < mobs.size(); j++) {
-                    available_acts.emplace_back(act_type::play, vector<int>({i, j}));
+                    available_acts.emplace_back(act_type::play, std::vector<int>({i, j}));
                 }
             } else if (deck[hand[i]].get_type() == Card_type::skill) {
-                available_acts.emplace_back(act_type::play, vector<int>({i}));
+                available_acts.emplace_back(act_type::play, std::vector<int>({i}));
             }
         }
     }
-}
-
-vector<json> Env::all_end_states() {
-
 }

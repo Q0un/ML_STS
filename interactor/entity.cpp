@@ -6,10 +6,10 @@ void Entity::give_dmg(int dmg) {
     if (effects[Effect::vulnerable]) {
         dmg += dmg / 2;
     }
-    int def_dmg = min(def, dmg);
+    int def_dmg = std::min(def, dmg);
     def -= def_dmg;
     dmg -= def_dmg;
-    hp = max(0, hp - dmg);
+    hp = std::max(0, hp - dmg);
 }
 
 void Entity::add_effect(Effect e, int val) {

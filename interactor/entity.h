@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-using namespace std;
 
 enum Effect{vulnerable, N_EFFECTS};
 

@@ -2,7 +2,6 @@
 #include <vector>
 #include "entity.h"
 #include "nlohmann/json.hpp"
-using namespace std;
 using json = nlohmann::json;
 
 enum Card_effect{Cvulnerable, N_CEFFECTS};
@@ -11,7 +10,7 @@ enum Card_type{attack, skill};
 class Card {
     Card_type type;
     int dmg, def, cost;
-    vector<pair<Card_effect, int>> effects;
+    std::vector<std::pair<Card_effect, int>> effects;
 
 public:
     Card() = default;

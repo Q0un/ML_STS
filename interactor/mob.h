@@ -1,21 +1,19 @@
 #pragma once
 #include "entity.h"
 #include "nlohmann/json.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-/*
+
 enum Mob_type{Test};
 enum Mob_movetype{attack, defend, buff, debuff};
-*/
+
 
 class Mob : public Entity {
     int dmg;
 
 public:
     Mob() = default;
-    // Mob(Mob_type type);
-    Mob(int hp, int dmg);
+    Mob(Mob_type type);
     Mob(json &info);
 
     json get_json() const;
@@ -23,7 +21,7 @@ public:
     void load(json &info);
 };
 
-/*
+
 class Mob_move {
     Mob_movetype type;
     int dmg, count_dmg, def;
@@ -32,17 +30,15 @@ class Mob_move {
 
 public:
     Mob_move() = default;
-    Mob_move(Mob_movetype type, const vector<int> &args);
+    Mob_move(Mob_movetype type, const std::vector<int> &args);
 };
+
 
 class Sample_Mob {
 public:
     int hpl, hpr;
-    vector<Mob_move> available_moves;
-    vector<Effect> effects;
+    std::vector<Mob_move> available_moves;
+    std::vector<Effect> effects;
 
     Sample_Mob() = default;
 };
-
-void load_mobs();
-*/
