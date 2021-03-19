@@ -9,7 +9,7 @@ enum Mob_movetype{attack, defend, buff, debuff};
 
 
 class Mob : public Entity {
-    int dmg;
+    int type, cur_move;
 
 public:
     Mob() = default;
@@ -31,14 +31,31 @@ class Mob_move {
 public:
     Mob_move() = default;
     Mob_move(Mob_movetype type, const std::vector<int> &args);
+
+    void apply(Entity &player, Entity &mob);
 };
 
+class Mob_moves {
+    std::vector<Mob_move> moves;
+
+public:
+    Mob_moves() = default;
+    Mob_moves(const std::vector<Mob_move> &moves);
+
+    void apply(Entity &player, Entity &mob);
+};
 
 class Sample_Mob {
 public:
     int hpl, hpr;
-    std::vector<Mob_move> available_moves;
+    std::vector<Mob_moves> available_moves;
     std::vector<Effect> effects;
 
     Sample_Mob() = default;
 };
+
+class Jaw_Worm : public Sample_Mob {
+    Jaw_Worm();
+};
+
+void load_mobs();

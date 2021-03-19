@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-enum Effect{vulnerable, N_EFFECTS};
+enum Effect{vulnerable, N_TEMPS, strength, N_EFFECTS};
 
 class Entity {
 protected:
