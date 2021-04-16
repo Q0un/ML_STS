@@ -1,6 +1,9 @@
-#pragma once
+#ifndef STS_PROJECT_ENV_H
+#define STS_PROJECT_ENV_H
+
 #include "cards.h"
 #include "player.h"
+#include "random.h"
 #include "mob.h"
 #include "action.h"
 #include "nlohmann/json.hpp"
@@ -8,18 +11,18 @@
 #include <fstream>
 using json = nlohmann::json;
 
-enum State{fight, lose, win, nothing};
+enum class State{fight, lose, win, nothing};
 
 class Env {
     std::vector<Card> deck;
     std::vector<int> hand, pool, offpool;
-    vector<Mob> mobs;
+    std::vector<Mob*> mobs;
     Player player;
     State game_state;
     const int IN_HAND = 5;
-    ofstream logs;
+    std::ofstream logs;
     int max_energy, energy;
-    vector<Action> available_acts;
+    std::vector<Action> available_acts;
     int mobhp_boof;
 
 public:
@@ -34,10 +37,10 @@ public:
     void use_card(int card, int mob);
     std::pair<json, double> step(const Action &act);
     State get_gamestate() const;
-    void load(json &info);
-    std::pair<json, double> get_result(json &snapshot, const Action &act);
     std::vector<Action> get_acts() const;
     Action sample_act() const;
     int mobs_hp() const;
     void update_actions();
 };
+
+#endif //STS_PROJECT_ENV_H

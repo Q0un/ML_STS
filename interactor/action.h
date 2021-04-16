@@ -1,8 +1,10 @@
-#pragma once
+#ifndef STS_PROJECT_ACTION_H
+#define STS_PROJECT_ACTION_H
+
 #include <vector>
 #include <fstream>
 
-enum act_type{play, end};
+enum class act_type{play, end};
 
 class Action {
 public:
@@ -14,3 +16,5 @@ public:
 
     friend std::ofstream& operator<<(std::ofstream &out, const Action &act);
 };
+
+#endif //STS_PROJECT_ACTION_H

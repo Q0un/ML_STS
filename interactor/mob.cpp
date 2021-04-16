@@ -1,5 +1,4 @@
 #include "mob.h"
-#include "random.h"
 
 // Mob moves
 
@@ -23,7 +22,7 @@ Mob_moves::Mob_moves(const std::vector<Mob_move> &moves) : moves(moves) {}
 void Mob_move::apply(Entity &player, Entity &mob) {
     if (type == Mob_movetype::attack) {
         for (int i = 0; i < count_dmg; i++) {
-            player.give_dmg(dmg);
+            player.take_dmg(mob.deal_dmg(dmg));
         }
     } else if (type == Mob_movetype::defend) {
         mob.add_def(def);
@@ -54,7 +53,7 @@ json Mob::get_json() const {
     res["type"] = type;
     res["move"] = cur_move;
     res["effects"] = json::array();
-    for (int i = 0; i < N_EFFECTS; i++) {
+    for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
         res["effects"].emplace_back(effects[i]);
     }
     return res;
@@ -62,7 +61,7 @@ json Mob::get_json() const {
 
 void Mob::move(Entity &player) {
     available_moves[cur_move].apply(player, *this);
-    for (int i = 0; i < N_TEMPS; i++) {
+    for (int i = 0; i < (int)Effect::N_TEMPS; i++) {
         if (effects[i]) {
             effects[i]--;
         }
@@ -85,8 +84,9 @@ Jaw_Worm::Jaw_Worm() : Mob() {
     type = Mob_type::jaw_worm;
     Mob_moves chomp({ {Mob_movetype::attack, {11, 1}} });
     Mob_moves thrash({ {Mob_movetype::attack, {7, 1}}, {Mob_movetype::defend, {5}} });
-    Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {Effect::strength, 3}} });
+    Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {(int)Effect::strength, 3}} });
     available_moves = {chomp, thrash, bellow};
+    cur_move = rnd() % 3;
 }
 
 int Jaw_Worm::get_move() const {

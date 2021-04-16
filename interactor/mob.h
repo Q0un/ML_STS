@@ -1,10 +1,13 @@
-#pragma once
+#ifndef STS_PROJECT_MOB_H
+#define STS_PROJECT_MOB_H
+
 #include "entity.h"
+#include "random.h"
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum Mob_type{jaw_worm, NONE};
-enum Mob_movetype{attack, defend, buff, debuff};
+enum class Mob_type{jaw_worm, NONE};
+enum class Mob_movetype{attack, defend, buff, debuff};
 
 class Mob_move {
     Mob_movetype type;
@@ -31,7 +34,6 @@ public:
 
 class Mob : public Entity{
 protected:
-    int hp;
     Mob_type type;
     int cur_move;
     std::vector<Mob_moves> available_moves;
@@ -41,6 +43,8 @@ public:
 
     json get_json() const;
     void move(Entity &player);
+
+protected:
     virtual int get_move() const;
 };
 
@@ -48,5 +52,8 @@ class Jaw_Worm : public Mob {
 public:
     Jaw_Worm();
 
+protected:
     int get_move() const override;
 };
+
+#endif //STS_PROJECT_MOB_H

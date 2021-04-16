@@ -16,7 +16,7 @@ json Player::get_json() const {
 
 void Player::update() {
     def = 0;
-    for (int i = 0; i < N_EFFECTS; i++) {
+    for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
         if (effects[i]) {
             effects[i]--;
         }

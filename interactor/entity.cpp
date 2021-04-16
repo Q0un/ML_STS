@@ -1,9 +1,16 @@
 #include "entity.h"
 
-Entity::Entity(int max_hp) : max_hp(max_hp), hp(max_hp), def(0) {}
+Entity::Entity(int max_hp) : max_hp(max_hp), hp(max_hp), def(0) {
+    std::fill(effects, effects + (int)Effect::N_EFFECTS, 0);
+}
 
-void Entity::give_dmg(int dmg) {
-    if (effects[Effect::vulnerable]) {
+int Entity::deal_dmg(int dmg) const {
+    dmg += effects[(int)Effect::strength];
+    return dmg;
+}
+
+void Entity::take_dmg(int dmg) {
+    if (effects[(int)Effect::vulnerable]) {
         dmg += dmg / 2;
     }
     int def_dmg = std::min(def, dmg);
@@ -13,7 +20,7 @@ void Entity::give_dmg(int dmg) {
 }
 
 void Entity::add_effect(Effect e, int val) {
-    effects[e] = val;
+    effects[(int)e] = val;
 }
 
 void Entity::add_def(int val) {

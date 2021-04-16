@@ -28,7 +28,7 @@ int Card::get_cost() const {
 
 void Card::use(Entity *player, Entity *mob) const {
     if (dmg) {
-        mob->give_dmg(dmg);
+        mob->take_dmg(player->deal_dmg(dmg));
     }
     if (def) {
         player->add_def(def);
