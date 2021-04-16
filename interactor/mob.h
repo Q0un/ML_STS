@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "random.h"
+#include <queue>
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
@@ -36,6 +37,7 @@ class Mob : public Entity{
 protected:
     Mob_type type;
     int cur_move;
+    std::deque<int> history;
     std::vector<Mob_moves> available_moves;
 
 public:
@@ -45,7 +47,7 @@ public:
     void move(Entity &player);
 
 protected:
-    virtual int get_move() const;
+    virtual int get_move();
 };
 
 class Jaw_Worm : public Mob {
@@ -53,7 +55,7 @@ public:
     Jaw_Worm();
 
 protected:
-    int get_move() const override;
+    int get_move() override;
 };
 
 #endif //STS_PROJECT_MOB_H

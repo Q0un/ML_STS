@@ -66,11 +66,12 @@ void Mob::move(Entity &player) {
             effects[i]--;
         }
     }
-    cur_move = get_move();
+    get_move();
 }
 
-int Mob::get_move() const {
-    return -1;
+int Mob::get_move() {
+    assert(0);
+    return cur_move = -1;
 }
 
 // Samples
@@ -86,10 +87,22 @@ Jaw_Worm::Jaw_Worm() : Mob() {
     Mob_moves thrash({ {Mob_movetype::attack, {7, 1}}, {Mob_movetype::defend, {5}} });
     Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {(int)Effect::strength, 3}} });
     available_moves = {chomp, thrash, bellow};
-    cur_move = rnd() % 3;
+    get_move();
 }
 
-int Jaw_Worm::get_move() const {
-    return rnd() % 3;
+int Jaw_Worm::get_move() {
+    int mv = -1;
+    if (history.empty()) {
+        mv = 0;
+    } else if (history.back() == 2) {
+        mv = get_random({25, 30, 0});
+    } else if (history.back() == 0) {
+        mv = get_random({0, 30, 45});
+    } else if (history.back() == 1 && history.size() > 1 && *next(history.rbegin()) == 1) {
+        mv = get_random({25, 0, 45});
+    } else {
+        mv = get_random({25, 30, 45});
+    }
+    return cur_move = mv;
 }
 
