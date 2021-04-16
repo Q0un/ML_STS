@@ -3,24 +3,8 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-
-enum Mob_type{Test};
+enum Mob_type{jaw_worm, NONE};
 enum Mob_movetype{attack, defend, buff, debuff};
-
-
-class Mob : public Entity {
-    int type, cur_move;
-
-public:
-    Mob() = default;
-    Mob(Mob_type type);
-    Mob(json &info);
-
-    json get_json() const;
-    void move(Entity &player);
-    void load(json &info);
-};
-
 
 class Mob_move {
     Mob_movetype type;
@@ -45,17 +29,24 @@ public:
     void apply(Entity &player, Entity &mob);
 };
 
-class Sample_Mob {
-public:
-    int hpl, hpr;
+class Mob : public Entity{
+protected:
+    int hp;
+    Mob_type type;
+    int cur_move;
     std::vector<Mob_moves> available_moves;
-    std::vector<Effect> effects;
 
-    Sample_Mob() = default;
+public:
+    Mob();
+
+    json get_json() const;
+    void move(Entity &player);
+    virtual int get_move() const;
 };
 
-class Jaw_Worm : public Sample_Mob {
+class Jaw_Worm : public Mob {
+public:
     Jaw_Worm();
-};
 
-void load_mobs();
+    int get_move() const override;
+};

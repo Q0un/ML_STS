@@ -1,63 +1,7 @@
 #include "mob.h"
 #include "random.h"
 
-// Sample Mobs
-
-std::vector<Sample_Mob> mob_samples;
-
-Jaw_Worm::Jaw_Worm() : Sample_Mob() {
-    hpl = 40;
-    hpr = 44;
-    Mob_moves chomp({ {Mob_movetype::attack, {11, 1}} });
-    Mob_moves thrash({ {Mob_movetype::attack, {7, 1}}, {Mob_movetype::defend, {5}} });
-    Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {Effect::strength, {3}}} });
-    available_moves = {chomp, thrash, bellow};
-
-}
-
-// Mob
-
-Mob::Mob(Mob_type type) : Entity() {
-    hp = max_hp = mob_samples[type].hpl + rnd() % (mob_samples[type].hpr - mob_samples[type].hpl + 1);
-}
-
-Mob::Mob(json &info) : Entity() {
-    load(info);
-}
-
-json Mob::get_json() const {
-    json res;
-    res["max_hp"] = max_hp;
-    res["hp"] = hp;
-    res["type"] = type;
-    res["move"] = cur_move;
-    res["effects"] = json::array();
-    for (int i = 0; i < N_EFFECTS; i++) {
-        res["effects"].emplace_back(effects[i]);
-    }
-    return res;
-}
-
-void Mob::move(Entity &player) {
-    mob_samples[type].available_moves[cur_move].apply(player, *this);
-    for (int i = 0; i < N_TEMPS; i++) {
-        if (effects[i]) {
-            effects[i]--;
-        }
-    }
-}
-
-void Mob::load(json &info) {
-    max_hp = info["max_hp"];
-    hp = info["hp"];
-    type = info["type"];
-    cur_move = info["move"];
-    for (int i = 0; i < N_EFFECTS; i++) {
-        effects[i] = info["effects"][i];
-    }
-}
-
-// Mob_move
+// Mob moves
 
 Mob_move::Mob_move(Mob_movetype type, const std::vector<int> &args) : type(type) {
     if (type == Mob_movetype::attack) {
@@ -95,3 +39,57 @@ void Mob_moves::apply(Entity &player, Entity &mob) {
         move.apply(player, mob);
     }
 }
+
+// Mob
+
+Mob::Mob() {
+    hp = cur_move = -1;
+    type = Mob_type::NONE;
+}
+
+json Mob::get_json() const {
+    json res;
+    res["max_hp"] = max_hp;
+    res["hp"] = hp;
+    res["type"] = type;
+    res["move"] = cur_move;
+    res["effects"] = json::array();
+    for (int i = 0; i < N_EFFECTS; i++) {
+        res["effects"].emplace_back(effects[i]);
+    }
+    return res;
+}
+
+void Mob::move(Entity &player) {
+    available_moves[cur_move].apply(player, *this);
+    for (int i = 0; i < N_TEMPS; i++) {
+        if (effects[i]) {
+            effects[i]--;
+        }
+    }
+    cur_move = get_move();
+}
+
+int Mob::get_move() const {
+    return -1;
+}
+
+// Samples
+
+// Jaw Worm
+
+Jaw_Worm::Jaw_Worm() : Mob() {
+    int hpl = 40;
+    int hpr = 44;
+    max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
+    type = Mob_type::jaw_worm;
+    Mob_moves chomp({ {Mob_movetype::attack, {11, 1}} });
+    Mob_moves thrash({ {Mob_movetype::attack, {7, 1}}, {Mob_movetype::defend, {5}} });
+    Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {Effect::strength, 3}} });
+    available_moves = {chomp, thrash, bellow};
+}
+
+int Jaw_Worm::get_move() const {
+    return rnd() % 3;
+}
+
