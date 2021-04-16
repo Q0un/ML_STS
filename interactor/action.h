@@ -1,17 +1,20 @@
-#pragma once
+#ifndef STS_PROJECT_ACTION_H
+#define STS_PROJECT_ACTION_H
+
 #include <vector>
 #include <fstream>
-using namespace std;
 
-enum act_type{play, end};
+enum class act_type{play, end};
 
 class Action {
 public:
     act_type type;
-    vector<int> args;
+    std::vector<int> args;
 
     Action() = default;
-    Action(act_type type, const vector<int> &args = {});
+    Action(act_type type, const std::vector<int> &args = {});
 
-    friend ofstream& operator<<(ofstream &out, const Action &act);
+    friend std::ofstream& operator<<(std::ofstream &out, const Action &act);
 };
+
+#endif //STS_PROJECT_ACTION_H

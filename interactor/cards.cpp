@@ -17,7 +17,7 @@ json Card::get_json() const {
     res["cost"] = cost;
     res["effects"] = json::array();
     for (auto &e : effects) {
-        res["effects"].emplace_back(make_pair(e.first, e.second));
+        res["effects"].emplace_back(std::make_pair(e.first, e.second));
     }
     return res;
 }
@@ -28,7 +28,7 @@ int Card::get_cost() const {
 
 void Card::use(Entity *player, Entity *mob) const {
     if (dmg) {
-        mob->give_dmg(dmg);
+        mob->take_dmg(player->deal_dmg(dmg));
     }
     if (def) {
         player->add_def(def);

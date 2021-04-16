@@ -1,29 +1,15 @@
-#pragma once
+#ifndef STS_PROJECT_MOB_H
+#define STS_PROJECT_MOB_H
+
 #include "entity.h"
+#include "random.h"
+#include <queue>
 #include "nlohmann/json.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-/*
-enum Mob_type{Test};
-enum Mob_movetype{attack, defend, buff, debuff};
-*/
+enum class Mob_type{jaw_worm, NONE};
+enum class Mob_movetype{attack, defend, buff, debuff};
 
-class Mob : public Entity {
-    int dmg;
-
-public:
-    Mob() = default;
-    // Mob(Mob_type type);
-    Mob(int hp, int dmg);
-    Mob(json &info);
-
-    json get_json() const;
-    void move(Entity &player);
-    void load(json &info);
-};
-
-/*
 class Mob_move {
     Mob_movetype type;
     int dmg, count_dmg, def;
@@ -32,17 +18,44 @@ class Mob_move {
 
 public:
     Mob_move() = default;
-    Mob_move(Mob_movetype type, const vector<int> &args);
+    Mob_move(Mob_movetype type, const std::vector<int> &args);
+
+    void apply(Entity &player, Entity &mob);
 };
 
-class Sample_Mob {
+class Mob_moves {
+    std::vector<Mob_move> moves;
+
 public:
-    int hpl, hpr;
-    vector<Mob_move> available_moves;
-    vector<Effect> effects;
+    Mob_moves() = default;
+    Mob_moves(const std::vector<Mob_move> &moves);
 
-    Sample_Mob() = default;
+    void apply(Entity &player, Entity &mob);
 };
 
-void load_mobs();
-*/
+class Mob : public Entity{
+protected:
+    Mob_type type;
+    int cur_move;
+    std::deque<int> history;
+    std::vector<Mob_moves> available_moves;
+
+public:
+    Mob();
+
+    json get_json() const;
+    void move(Entity &player);
+
+protected:
+    virtual int get_move();
+};
+
+class Jaw_Worm : public Mob {
+public:
+    Jaw_Worm();
+
+protected:
+    int get_move() override;
+};
+
+#endif //STS_PROJECT_MOB_H

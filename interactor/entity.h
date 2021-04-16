@@ -1,21 +1,25 @@
-#pragma once
-#include <vector>
-using namespace std;
+#ifndef STS_PROJECT_ENTITY_H
+#define STS_PROJECT_ENTITY_H
 
-enum Effect{vulnerable, N_EFFECTS};
+#include <vector>
+
+enum class Effect{vulnerable, N_TEMPS, strength, N_EFFECTS};
 
 class Entity {
 protected:
     int max_hp, hp, def;
-    int effects[N_EFFECTS];
+    int effects[(int)Effect::N_EFFECTS];
 
 public:
     Entity() = default;
     Entity(int max_hp);
 
-    void give_dmg(int dmg);
+    int deal_dmg(int dmg) const;
+    void take_dmg(int dmg);
     void add_effect(Effect e, int val);
     void add_def(int val);
     bool dead() const;
     int get_hp() const;
 };
+
+#endif //STS_PROJECT_ENTITY_H

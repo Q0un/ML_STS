@@ -1,8 +1,9 @@
-#pragma once
+#ifndef STS_PROJECT_PLAYER_H
+#define STS_PROJECT_PLAYER_H
+
 #include "entity.h"
 #include "cards.h"
 #include "nlohmann/json.hpp"
-using namespace std;
 using json = nlohmann::json;
 
 class Player : public Entity {
@@ -18,3 +19,5 @@ public:
     void reset();
     int get_dhp() const;
 };
+
+#endif //STS_PROJECT_PLAYER_H

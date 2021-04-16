@@ -1,17 +1,18 @@
-#pragma once
+#ifndef STS_PROJECT_CARDS_H
+#define STS_PROJECT_CARDS_H
+
 #include <vector>
 #include "entity.h"
 #include "nlohmann/json.hpp"
-using namespace std;
 using json = nlohmann::json;
 
-enum Card_effect{Cvulnerable, N_CEFFECTS};
-enum Card_type{attack, skill};
+enum class Card_effect{vulnerable, N_CEFFECTS};
+enum class Card_type{attack, skill};
 
 class Card {
     Card_type type;
     int dmg, def, cost;
-    vector<pair<Card_effect, int>> effects;
+    std::vector<std::pair<Card_effect, int>> effects;
 
 public:
     Card() = default;
@@ -25,3 +26,5 @@ public:
     void load(json &info);
     Card_type get_type() const;
 };
+
+#endif //STS_PROJECT_CARDS_H
