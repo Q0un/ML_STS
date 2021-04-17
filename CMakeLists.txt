@@ -1,11 +1,9 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(STS_project)
 
 set(CMAKE_CXX_STANDARD 20)
-set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+add_compile_definitions(PROJECT_DIR="${PROJECT_SOURCE_DIR}")
+
 add_subdirectory(json-develop)
-
-add_executable(STS_project main.cpp interactor/env.cpp interactor/env.h interactor/cards.cpp interactor/cards.h interactor/player.cpp interactor/player.h interactor/entity.cpp interactor/entity.h interactor/mob.cpp interactor/mob.h interactor/action.cpp interactor/action.h interactor/random.h interactor/random.cpp)
-target_link_libraries(STS_project nlohmann_json::nlohmann_json)
-
-include_directories(interactor)
+add_subdirectory(interactor interactor/interactor_output)

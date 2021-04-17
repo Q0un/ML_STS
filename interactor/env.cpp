@@ -1,7 +1,7 @@
 #include "env.h"
 
 Env::Env() {
-    logs = std::ofstream("../env.log");
+    logs = std::ofstream(std::string(PROJECT_DIR) + "/env.log");
 
     max_energy = 3;
     player = Player(80);
