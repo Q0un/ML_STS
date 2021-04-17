@@ -78,6 +78,10 @@ json Env::get_state() {
             st["mobs"].emplace_back(mob->get_json());
         }
 
+        st["deck"] = json::array();
+        for (auto &card : deck) {
+            st["deck"].emplace_back(card.get_json());
+        }
         st["hand"] = json::array();
         for (auto &card : hand) {
             st["hand"].emplace_back(card);
