@@ -49,7 +49,6 @@ void Env::startFight() {
     game_state = State::Fight;
 
     mobs.emplace_back(new JawWorm());
-    mobhp_boof = mobsHp();
 
     energy = max_energy;
     pool.clear();
@@ -134,7 +133,7 @@ void Env::useCard(int card, int mob) {
     hand.erase(hand.begin() + card);
 }
 
-std::pair<json, double> Env::step(const Action &act) {
+double Env::step(const Action &act) {
     logs << act << std::endl;
     double rew = 0;
     if (game_state == State::Nothing) {
@@ -147,15 +146,17 @@ std::pair<json, double> Env::step(const Action &act) {
         if (act.type == actType::Play) {
             int card = act.args[0];
             int mob = -1;
+            int mobhp_boof = mobsHp();
             if (act.args.size() > 1) {
                 mob = act.args[1];
             }
             useCard(card, mob);
+            rew = 2 * (mobhp_boof - mobsHp());
         } else if (act.type == actType::End) {
             int playerhp_boof = player.getHp();
             mobTurn();
 
-            rew = (mobhp_boof - mobsHp()) * 2 + (playerhp_boof - player.getHp());
+            rew = -(playerhp_boof - player.getHp());
 
             if (player.dead()) {
                 game_state = State::Lose;
@@ -183,7 +184,7 @@ std::pair<json, double> Env::step(const Action &act) {
 
     updateActions();
 
-    return {res, rew};
+    return rew;
 }
 
 State Env::getGamestate() const {

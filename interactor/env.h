@@ -24,7 +24,6 @@ class Env {
     std::ofstream logs;
     int max_energy, energy;
     std::vector<Action> available_acts;
-    int mobhp_boof;
 
 public:
     Env();
@@ -36,7 +35,7 @@ public:
     void updateHand();
     void mobTurn();
     void useCard(int card, int mob);
-    std::pair<json, double> step(const Action &act);
+    double step(const Action &act);
     State getGamestate() const;
     std::vector<Action> getActs() const;
     Action sampleAct() const;

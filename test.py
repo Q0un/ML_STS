@@ -8,6 +8,7 @@ import gym
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
+
 class QLearningAgent:
     def __init__(self, alpha, epsilon, discount):
         """
@@ -59,7 +60,7 @@ class QLearningAgent:
 
         return value
 
-    def update(self, state, action, reward, next_state):
+    def update(self, state, action, reward, next_state, next_possible_actions):
         """
         You should do your Q-Value update here:
            Q(s,a) := (1 - alpha) * Q(s,a) + alpha * (r + gamma * V(s'))
@@ -69,7 +70,7 @@ class QLearningAgent:
         gamma = self.discount
         learning_rate = self.alpha
 
-        qval = (1 - self.alpha) * self.get_qvalue(state, action) + self.alpha * (reward + gamma * self.get_value(next_state))
+        qval = (1 - self.alpha) * self.get_qvalue(state, action) + self.alpha * (reward + gamma * self.get_value(next_state, next_possible_actions))
 
         self.set_qvalue(state, action, qval)
 
@@ -77,7 +78,6 @@ class QLearningAgent:
         """
         Compute the best action to take in a state (using current q-values).
         """
-        possible_actions = self.get_legal_actions(state)
 
         # If there are no legal actions, return None
         if len(possible_actions) == 0:
@@ -87,7 +87,7 @@ class QLearningAgent:
 
         return best_action
 
-    def get_action(self, state):
+    def get_action(self, state, possible_actions):
         """
         Compute the action to take in the current state, including exploration.
         With probability self.epsilon, we should take a random action.
@@ -99,7 +99,6 @@ class QLearningAgent:
         """
 
         # Pick Action
-        possible_actions = self.get_legal_actions(state)
         action = None
 
         # If there are no legal actions, return None
@@ -112,16 +111,71 @@ class QLearningAgent:
         if random.random() < epsilon:
             action = random.choice(possible_actions)
         else:
-            action = self.get_best_action(state)
+            action = self.get_best_action(state, possible_actions)
 
         return action
 
-while True:
-    state = json.loads(input())
-    if state["game_state"] == 1 or state["game_state"] == 2:
-        break
-    possible_actions = json.loads(input())
-    x = random.randint(0, len(possible_actions) - 1)
-    print(possible_actions[x]["type"], *possible_actions[x]["args"])
 
-#: | { cmd1 | cmd2; } > /dev/fd/0
+agent = QLearningAgent(alpha=0.5, epsilon=0.25, discount=0.9)
+
+
+def state_to_tuple(d):
+    res = []
+    if isinstance(d, dict):
+        for i in d.values():
+            res.append(state_to_tuple(i))
+    elif isinstance(d, list):
+        for i in d:
+            res.append(state_to_tuple(i))
+    else:
+        res = [d]
+    return tuple(res)
+
+
+def play_and_train(agent, t_max=10**4):
+    """
+    This function should
+    - run a full game, actions given by agent's e-greedy policy
+    - train agent using agent.update(...) whenever it is possible
+    - return total reward
+    """
+    print(-1)
+    total_reward = float(input())
+    state = json.loads(input())
+    l_state = state_to_tuple(state)
+    possible_actions = json.loads(input())
+
+    for t in range(t_max):
+        # get agent to pick action given state s.
+        action = agent.get_action(l_state, range(len(possible_actions)))
+        print(action)
+        reward = float(input())
+        next_state = json.loads(input())
+        l_next_state = state_to_tuple(next_state)
+        next_possible_actions = json.loads(input())
+
+        # train (update) agent for state s
+        agent.update(l_state, action, reward, l_next_state, range(len(next_possible_actions)))
+
+        state = next_state
+        l_state = l_next_state
+        possible_actions = next_possible_actions
+        total_reward += reward
+        if state["game_state"] == 1 or state["game_state"] == 2:
+            break
+
+    return total_reward
+
+
+from IPython.display import clear_output
+
+logs = open("rewards.log", "w")
+rewards = []
+for i in range(1000):
+    rewards.append(play_and_train(agent))
+    agent.epsilon *= 0.99
+
+    if i % 100 == 0:
+        print(np.mean(rewards[-10:]), file=logs)
+
+print(-2)
