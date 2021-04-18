@@ -9,6 +9,7 @@
 #include "nlohmann/json.hpp"
 #include <random>
 #include <fstream>
+#include <iostream>
 using json = nlohmann::json;
 
 enum class State{Fight, Lose, Win, Nothing};
@@ -41,6 +42,7 @@ public:
     Action sampleAct() const;
     int mobsHp() const;
     void updateActions();
+    void printState();
 };
 
 #endif //STS_PROJECT_ENV_H
