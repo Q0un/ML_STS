@@ -6,15 +6,15 @@ Env::Env() {
     max_energy = 3;
     player = Player(80);
     for (int i = 0; i < 5; i++) {
-        deck.emplace_back(Card_type::attack, 6, 0, 1);
+        deck.emplace_back(Card_type::Attack, 6, 0, 1);
     }
     for (int i = 0; i < 4; i++) {
-        deck.emplace_back(Card_type::skill, 0, 5, 1);
+        deck.emplace_back(Card_type::Skill, 0, 5, 1);
     }
-    auto card = Card(Card_type::attack, 8, 0, 2);
-    card.addEffect(Card_effect::vulnerable, 2);
+    auto card = Card(Card_type::Attack, 8, 0, 2);
+    card.addEffect(Card_effect::Vulnerable, 2);
     deck.emplace_back(card);
-    game_state = State::nothing;
+    game_state = State::Nothing;
 
     logs << getState() << std::endl;
 }
@@ -25,7 +25,7 @@ Env::~Env() {
 
 void Env::reset() {
     logs << "===============RESET===============\n";
-    game_state = State::nothing;
+    game_state = State::Nothing;
     player.reset();
     pool.clear();
     hand.clear();
@@ -34,18 +34,18 @@ void Env::reset() {
 
     deck.clear();
     for (int i = 0; i < 5; i++) {
-        deck.emplace_back(Card_type::attack, 6, 0, 1);
+        deck.emplace_back(Card_type::Attack, 6, 0, 1);
     }
     for (int i = 0; i < 4; i++) {
-        deck.emplace_back(Card_type::skill, 0, 5, 1);
+        deck.emplace_back(Card_type::Skill, 0, 5, 1);
     }
-    auto card = Card(Card_type::attack, 8, 0, 2);
-    card.addEffect(Card_effect::vulnerable, 2);
+    auto card = Card(Card_type::Attack, 8, 0, 2);
+    card.addEffect(Card_effect::Vulnerable, 2);
     deck.emplace_back(card);
 }
 
 void Env::startFight() {
-    game_state = State::fight;
+    game_state = State::Fight;
 
     mobs.emplace_back(new JawWorm());
     mobhp_boof = mobsHp();
@@ -69,7 +69,7 @@ void Env::startFight() {
 json Env::getState() {
     json st;
     st["game_state"] = game_state;
-    if (game_state == State::fight) {
+    if (game_state == State::Fight) {
         st["max_energy"] = max_energy;
         st["energy"] = energy;
         st["player"] = player.getJson();
@@ -142,21 +142,21 @@ std::pair<json, double> Env::step(const Action &act) {
     logs << act << ' ';
     logs << std::endl;
     double rew = 0;
-    if (act.type == act_type::play) {
+    if (act.type == act_type::Play) {
         int card = act.args[0];
         int mob = -1;
         if (act.args.size() > 1) {
             mob = act.args[1];
         }
         useCard(card, mob);
-    } else if (act.type == act_type::end) {
+    } else if (act.type == act_type::End) {
         int playerhp_boof = player.getHp();
         mobTurn();
 
         rew = (mobhp_boof - mobsHp()) * 2 + (playerhp_boof - player.getHp());
 
         if (player.dead()) {
-            game_state = State::lose;
+            game_state = State::Lose;
         } else {
             updateHand();
         }
@@ -168,7 +168,7 @@ std::pair<json, double> Env::step(const Action &act) {
         }
     }
     if (mobs.empty()) {
-        game_state = State::win;
+        game_state = State::Win;
     }
     json res = getState();
     logs << res << std::endl;
@@ -201,15 +201,15 @@ int Env::mobsHp() const {
 
 void Env::updateActions() {
     available_acts.clear();
-    available_acts.emplace_back(act_type::end);
+    available_acts.emplace_back(act_type::End);
     for (int i = 0; i < hand.size(); i++) {
         if (deck[hand[i]].getCost() <= energy) {
-            if (deck[hand[i]].getType() == Card_type::attack) {
+            if (deck[hand[i]].getType() == Card_type::Attack) {
                 for (int j = 0; j < mobs.size(); j++) {
-                    available_acts.emplace_back(act_type::play, std::vector<int>({i, j}));
+                    available_acts.emplace_back(act_type::Play, std::vector<int>({i, j}));
                 }
-            } else if (deck[hand[i]].getType() == Card_type::skill) {
-                available_acts.emplace_back(act_type::play, std::vector<int>({i}));
+            } else if (deck[hand[i]].getType() == Card_type::Skill) {
+                available_acts.emplace_back(act_type::Play, std::vector<int>({i}));
             }
         }
     }

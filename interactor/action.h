@@ -4,7 +4,7 @@
 #include <vector>
 #include <fstream>
 
-enum class act_type{play, end};
+enum class act_type{Play, End};
 
 class Action {
 public:

@@ -7,8 +7,8 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum class MobType{jaw_worm, NONE};
-enum class MobMoveType{attack, defend, buff, debuff};
+enum class MobType{JawWorm, None};
+enum class MobMoveType{Attack, Defend, Buff, Debuff};
 
 class MobMove {
     MobMoveType type;

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-enum class Effect{vulnerable, N_TEMPS, strength, N_EFFECTS};
+enum class Effect{Vulnerable, N_TEMPS, Strength, N_EFFECTS};
 
 class Entity {
 protected:

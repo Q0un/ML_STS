@@ -3,15 +3,15 @@
 // Mob moves
 
 MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
-    if (type == MobMoveType::attack) {
+    if (type == MobMoveType::Attack) {
         dmg = args[0];
         count_dmg = args[1];
-    } else if (type == MobMoveType::defend) {
+    } else if (type == MobMoveType::Defend) {
         def = args[0];
-    } else if (type == MobMoveType::buff) {
+    } else if (type == MobMoveType::Buff) {
         effect = (Effect)args[0];
         count_effect = args[1];
-    } else if (type == MobMoveType::debuff) {
+    } else if (type == MobMoveType::Debuff) {
         effect = (Effect)args[0];
         count_effect = args[1];
     }
@@ -20,15 +20,15 @@ MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
 MobMoves::MobMoves(const std::vector<MobMove> &moves) : moves(moves) {}
 
 void MobMove::apply(Entity &player, Entity &mob) {
-    if (type == MobMoveType::attack) {
+    if (type == MobMoveType::Attack) {
         for (int i = 0; i < count_dmg; i++) {
             player.takeDmg(mob.dealDmg(dmg));
         }
-    } else if (type == MobMoveType::defend) {
+    } else if (type == MobMoveType::Defend) {
         mob.addDef(def);
-    } else if (type == MobMoveType::buff) {
+    } else if (type == MobMoveType::Buff) {
         mob.addEffect(effect, count_effect);
-    } else if (type == MobMoveType::debuff) {
+    } else if (type == MobMoveType::Debuff) {
         player.addEffect(effect, count_effect);
     }
 }
@@ -43,7 +43,7 @@ void MobMoves::apply(Entity &player, Entity &mob) {
 
 Mob::Mob() {
     hp = cur_move = -1;
-    type = MobType::NONE;
+    type = MobType::None;
 }
 
 json Mob::getJson() const {
@@ -82,10 +82,10 @@ JawWorm::JawWorm() : Mob() {
     int hpl = 40;
     int hpr = 44;
     max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
-    type = MobType::jaw_worm;
-    MobMoves chomp({ {MobMoveType::attack, {11, 1}} });
-    MobMoves thrash({ {MobMoveType::attack, {7, 1}}, {MobMoveType::defend, {5}} });
-    MobMoves bellow({ {MobMoveType::defend, {6}}, {MobMoveType::buff, {(int)Effect::strength, 3}} });
+    type = MobType::JawWorm;
+    MobMoves chomp({ {MobMoveType::Attack, {11, 1}} });
+    MobMoves thrash({ {MobMoveType::Attack, {7, 1}}, {MobMoveType::Defend, {5}} });
+    MobMoves bellow({ {MobMoveType::Defend, {6}}, {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
     available_moves = {chomp, thrash, bellow};
     getMove();
 }

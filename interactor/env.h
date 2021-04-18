@@ -11,7 +11,7 @@
 #include <fstream>
 using json = nlohmann::json;
 
-enum class State{fight, lose, win, nothing};
+enum class State{Fight, Lose, Win, Nothing};
 
 class Env {
     std::vector<Card> deck;

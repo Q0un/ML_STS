@@ -8,7 +8,7 @@ int main() {
     env.reset();
     env.startFight();
 
-    while (env.getGamestate() == State::fight) {
+    while (env.getGamestate() != State::Lose && env.getGamestate() != State::Win) {
         env.step(env.sampleAct());
     }
 }

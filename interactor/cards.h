@@ -6,8 +6,8 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum class Card_effect{vulnerable, N_CEFFECTS};
-enum class Card_type{attack, skill};
+enum class Card_effect{Vulnerable, N_CEFFECTS};
+enum class Card_type{Attack, Skill};
 
 class Card {
     Card_type type;

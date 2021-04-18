@@ -5,12 +5,12 @@ Entity::Entity(int max_hp) : max_hp(max_hp), hp(max_hp), def(0) {
 }
 
 int Entity::dealDmg(int dmg) const {
-    dmg += effects[(int)Effect::strength];
+    dmg += effects[(int)Effect::Strength];
     return dmg;
 }
 
 void Entity::takeDmg(int dmg) {
-    if (effects[(int)Effect::vulnerable]) {
+    if (effects[(int)Effect::Vulnerable]) {
         dmg += dmg / 2;
     }
     int def_dmg = std::min(def, dmg);
