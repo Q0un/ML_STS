@@ -20,6 +20,7 @@ public:
     void addDef(int val);
     bool dead() const;
     int getHp() const;
+    int getDHp() const;
 };
 
 #endif //STS_PROJECT_ENTITY_H

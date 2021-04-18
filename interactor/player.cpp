@@ -33,7 +33,3 @@ void Player::reset() {
     hp = max_hp;
     def = 0;
 }
-
-int Player::getDhp() const {
-    return max_hp - hp;
-}

@@ -34,3 +34,7 @@ bool Entity::dead() const {
 int Entity::getHp() const {
     return hp;
 }
+
+int Entity::getDHp() const {
+    return max_hp - hp;
+}

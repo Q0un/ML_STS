@@ -17,7 +17,6 @@ public:
     void update();
     void load(json &info);
     void reset();
-    int getDhp() const;
 };
 
 #endif //STS_PROJECT_PLAYER_H
