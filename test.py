@@ -1,3 +1,4 @@
+import json
 import numpy as np
 from collections import defaultdict
 import random
@@ -115,6 +116,12 @@ class QLearningAgent:
 
         return action
 
-
+while True:
+    state = json.loads(input())
+    if state["game_state"] == 1 or state["game_state"] == 2:
+        break
+    possible_actions = json.loads(input())
+    x = random.randint(0, len(possible_actions) - 1)
+    print(possible_actions[x]["type"], *possible_actions[x]["args"])
 
 #: | { cmd1 | cmd2; } > /dev/fd/0

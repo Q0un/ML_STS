@@ -9,7 +9,9 @@ int main() {
     env.printState();
 
     while (env.getGamestate() != State::Lose && env.getGamestate() != State::Win) {
-        env.step(env.sampleAct());
+        int x;
+        cin >> x;
+        env.step(env.getActs()[x]);
         env.printState();
     }
 }
