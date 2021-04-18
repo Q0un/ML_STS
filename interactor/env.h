@@ -30,17 +30,17 @@ public:
     ~Env();
 
     void reset();
-    void start_fight();
-    json get_state();
-    void update_hand();
-    void mob_turn();
-    void use_card(int card, int mob);
+    void startFight();
+    json getState();
+    void updateHand();
+    void mobTurn();
+    void useCard(int card, int mob);
     std::pair<json, double> step(const Action &act);
-    State get_gamestate() const;
-    std::vector<Action> get_acts() const;
-    Action sample_act() const;
-    int mobs_hp() const;
-    void update_actions();
+    State getGamestate() const;
+    std::vector<Action> getActs() const;
+    Action sampleAct() const;
+    int mobsHp() const;
+    void updateActions();
 };
 
 #endif //STS_PROJECT_ENV_H

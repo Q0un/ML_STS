@@ -7,55 +7,55 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum class Mob_type{jaw_worm, NONE};
-enum class Mob_movetype{attack, defend, buff, debuff};
+enum class MobType{jaw_worm, NONE};
+enum class MobMoveType{attack, defend, buff, debuff};
 
-class Mob_move {
-    Mob_movetype type;
+class MobMove {
+    MobMoveType type;
     int dmg, count_dmg, def;
     Effect effect;
     int count_effect;
 
 public:
-    Mob_move() = default;
-    Mob_move(Mob_movetype type, const std::vector<int> &args);
+    MobMove() = default;
+    MobMove(MobMoveType type, const std::vector<int> &args);
 
     void apply(Entity &player, Entity &mob);
 };
 
-class Mob_moves {
-    std::vector<Mob_move> moves;
+class MobMoves {
+    std::vector<MobMove> moves;
 
 public:
-    Mob_moves() = default;
-    Mob_moves(const std::vector<Mob_move> &moves);
+    MobMoves() = default;
+    MobMoves(const std::vector<MobMove> &moves);
 
     void apply(Entity &player, Entity &mob);
 };
 
 class Mob : public Entity{
 protected:
-    Mob_type type;
+    MobType type;
     int cur_move;
     std::deque<int> history;
-    std::vector<Mob_moves> available_moves;
+    std::vector<MobMoves> available_moves;
 
 public:
     Mob();
 
-    json get_json() const;
+    json getJson() const;
     void move(Entity &player);
 
 protected:
-    virtual int get_move();
+    virtual int getMove();
 };
 
-class Jaw_Worm : public Mob {
+class JawWorm : public Mob {
 public:
-    Jaw_Worm();
+    JawWorm();
 
 protected:
-    int get_move() override;
+    int getMove() override;
 };
 
 #endif //STS_PROJECT_MOB_H

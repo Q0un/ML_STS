@@ -6,9 +6,9 @@ using namespace std;
 int main() {
     Env env;
     env.reset();
-    env.start_fight();
+    env.startFight();
 
-    while (env.get_gamestate() == State::fight) {
-        env.step(env.sample_act());
+    while (env.getGamestate() == State::fight) {
+        env.step(env.sampleAct());
     }
 }

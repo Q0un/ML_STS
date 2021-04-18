@@ -12,11 +12,11 @@ Env::Env() {
         deck.emplace_back(Card_type::skill, 0, 5, 1);
     }
     auto card = Card(Card_type::attack, 8, 0, 2);
-    card.add_effect(Card_effect::vulnerable, 2);
+    card.addEffect(Card_effect::vulnerable, 2);
     deck.emplace_back(card);
     game_state = State::nothing;
 
-    logs << get_state() << std::endl;
+    logs << getState() << std::endl;
 }
 
 Env::~Env() {
@@ -40,15 +40,15 @@ void Env::reset() {
         deck.emplace_back(Card_type::skill, 0, 5, 1);
     }
     auto card = Card(Card_type::attack, 8, 0, 2);
-    card.add_effect(Card_effect::vulnerable, 2);
+    card.addEffect(Card_effect::vulnerable, 2);
     deck.emplace_back(card);
 }
 
-void Env::start_fight() {
+void Env::startFight() {
     game_state = State::fight;
 
-    mobs.emplace_back(new Jaw_Worm());
-    mobhp_boof = mobs_hp();
+    mobs.emplace_back(new JawWorm());
+    mobhp_boof = mobsHp();
 
     energy = max_energy;
     pool.clear();
@@ -63,24 +63,24 @@ void Env::start_fight() {
         pool.pop_back();
     }
 
-    update_actions();
+    updateActions();
 }
 
-json Env::get_state() {
+json Env::getState() {
     json st;
     st["game_state"] = game_state;
     if (game_state == State::fight) {
         st["max_energy"] = max_energy;
         st["energy"] = energy;
-        st["player"] = player.get_json();
+        st["player"] = player.getJson();
         st["mobs"] = json::array();
         for (auto &mob : mobs) {
-            st["mobs"].emplace_back(mob->get_json());
+            st["mobs"].emplace_back(mob->getJson());
         }
 
         st["deck"] = json::array();
         for (auto &card : deck) {
-            st["deck"].emplace_back(card.get_json());
+            st["deck"].emplace_back(card.getJson());
         }
         st["hand"] = json::array();
         for (auto &card : hand) {
@@ -98,7 +98,7 @@ json Env::get_state() {
     return st;
 }
 
-void Env::update_hand() {
+void Env::updateHand() {
     player.update();
     energy = max_energy;
     while (!hand.empty()) {
@@ -118,17 +118,17 @@ void Env::update_hand() {
     }
 }
 
-void Env::mob_turn() {
+void Env::mobTurn() {
     for (auto &mob : mobs) {
         mob->move(player);
     }
 }
 
-void Env::use_card(int card, int mob) {
-    if (energy < deck[hand[card]].get_cost()) {
+void Env::useCard(int card, int mob) {
+    if (energy < deck[hand[card]].getCost()) {
         return;
     }
-    energy -= deck[hand[card]].get_cost();
+    energy -= deck[hand[card]].getCost();
     if (mob != -1) {
         deck[hand[card]].use(&player, mobs[mob]);
     } else {
@@ -148,17 +148,17 @@ std::pair<json, double> Env::step(const Action &act) {
         if (act.args.size() > 1) {
             mob = act.args[1];
         }
-        use_card(card, mob);
+        useCard(card, mob);
     } else if (act.type == act_type::end) {
-        int playerhp_boof = player.get_hp();
-        mob_turn();
+        int playerhp_boof = player.getHp();
+        mobTurn();
 
-        rew = (mobhp_boof - mobs_hp()) * 2 + (playerhp_boof - player.get_hp());
+        rew = (mobhp_boof - mobsHp()) * 2 + (playerhp_boof - player.getHp());
 
         if (player.dead()) {
             game_state = State::lose;
         } else {
-            update_hand();
+            updateHand();
         }
     }
     for (int i = 0; i < mobs.size(); i++) {
@@ -170,45 +170,45 @@ std::pair<json, double> Env::step(const Action &act) {
     if (mobs.empty()) {
         game_state = State::win;
     }
-    json res = get_state();
+    json res = getState();
     logs << res << std::endl;
 
-    update_actions();
+    updateActions();
 
     return {res, rew};
 }
 
-State Env::get_gamestate() const {
+State Env::getGamestate() const {
     return game_state;
 }
 
-std::vector<Action> Env::get_acts() const {
+std::vector<Action> Env::getActs() const {
     return available_acts;
 }
 
-Action Env::sample_act() const {
+Action Env::sampleAct() const {
     int ind = rnd()%available_acts.size();
     return available_acts[ind];
 }
 
-int Env::mobs_hp() const {
+int Env::mobsHp() const {
     int res = 0;
     for (auto &mob : mobs) {
-        res += mob->get_hp();
+        res += mob->getHp();
     }
     return res;
 }
 
-void Env::update_actions() {
+void Env::updateActions() {
     available_acts.clear();
     available_acts.emplace_back(act_type::end);
     for (int i = 0; i < hand.size(); i++) {
-        if (deck[hand[i]].get_cost() <= energy) {
-            if (deck[hand[i]].get_type() == Card_type::attack) {
+        if (deck[hand[i]].getCost() <= energy) {
+            if (deck[hand[i]].getType() == Card_type::attack) {
                 for (int j = 0; j < mobs.size(); j++) {
                     available_acts.emplace_back(act_type::play, std::vector<int>({i, j}));
                 }
-            } else if (deck[hand[i]].get_type() == Card_type::skill) {
+            } else if (deck[hand[i]].getType() == Card_type::skill) {
                 available_acts.emplace_back(act_type::play, std::vector<int>({i}));
             }
         }

@@ -2,38 +2,38 @@
 
 // Mob moves
 
-Mob_move::Mob_move(Mob_movetype type, const std::vector<int> &args) : type(type) {
-    if (type == Mob_movetype::attack) {
+MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
+    if (type == MobMoveType::attack) {
         dmg = args[0];
         count_dmg = args[1];
-    } else if (type == Mob_movetype::defend) {
+    } else if (type == MobMoveType::defend) {
         def = args[0];
-    } else if (type == Mob_movetype::buff) {
+    } else if (type == MobMoveType::buff) {
         effect = (Effect)args[0];
         count_effect = args[1];
-    } else if (type == Mob_movetype::debuff) {
+    } else if (type == MobMoveType::debuff) {
         effect = (Effect)args[0];
         count_effect = args[1];
     }
 }
 
-Mob_moves::Mob_moves(const std::vector<Mob_move> &moves) : moves(moves) {}
+MobMoves::MobMoves(const std::vector<MobMove> &moves) : moves(moves) {}
 
-void Mob_move::apply(Entity &player, Entity &mob) {
-    if (type == Mob_movetype::attack) {
+void MobMove::apply(Entity &player, Entity &mob) {
+    if (type == MobMoveType::attack) {
         for (int i = 0; i < count_dmg; i++) {
-            player.take_dmg(mob.deal_dmg(dmg));
+            player.takeDmg(mob.dealDmg(dmg));
         }
-    } else if (type == Mob_movetype::defend) {
-        mob.add_def(def);
-    } else if (type == Mob_movetype::buff) {
-        mob.add_effect(effect, count_effect);
-    } else if (type == Mob_movetype::debuff) {
-        player.add_effect(effect, count_effect);
+    } else if (type == MobMoveType::defend) {
+        mob.addDef(def);
+    } else if (type == MobMoveType::buff) {
+        mob.addEffect(effect, count_effect);
+    } else if (type == MobMoveType::debuff) {
+        player.addEffect(effect, count_effect);
     }
 }
 
-void Mob_moves::apply(Entity &player, Entity &mob) {
+void MobMoves::apply(Entity &player, Entity &mob) {
     for (auto &move : moves) {
         move.apply(player, mob);
     }
@@ -43,10 +43,10 @@ void Mob_moves::apply(Entity &player, Entity &mob) {
 
 Mob::Mob() {
     hp = cur_move = -1;
-    type = Mob_type::NONE;
+    type = MobType::NONE;
 }
 
-json Mob::get_json() const {
+json Mob::getJson() const {
     json res;
     res["max_hp"] = max_hp;
     res["hp"] = hp;
@@ -66,10 +66,10 @@ void Mob::move(Entity &player) {
             effects[i]--;
         }
     }
-    get_move();
+    getMove();
 }
 
-int Mob::get_move() {
+int Mob::getMove() {
     assert(0);
     return cur_move = -1;
 }
@@ -78,30 +78,30 @@ int Mob::get_move() {
 
 // Jaw Worm
 
-Jaw_Worm::Jaw_Worm() : Mob() {
+JawWorm::JawWorm() : Mob() {
     int hpl = 40;
     int hpr = 44;
     max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
-    type = Mob_type::jaw_worm;
-    Mob_moves chomp({ {Mob_movetype::attack, {11, 1}} });
-    Mob_moves thrash({ {Mob_movetype::attack, {7, 1}}, {Mob_movetype::defend, {5}} });
-    Mob_moves bellow({ {Mob_movetype::defend, {6}}, {Mob_movetype::buff, {(int)Effect::strength, 3}} });
+    type = MobType::jaw_worm;
+    MobMoves chomp({ {MobMoveType::attack, {11, 1}} });
+    MobMoves thrash({ {MobMoveType::attack, {7, 1}}, {MobMoveType::defend, {5}} });
+    MobMoves bellow({ {MobMoveType::defend, {6}}, {MobMoveType::buff, {(int)Effect::strength, 3}} });
     available_moves = {chomp, thrash, bellow};
-    get_move();
+    getMove();
 }
 
-int Jaw_Worm::get_move() {
+int JawWorm::getMove() {
     int mv = -1;
     if (history.empty()) {
         mv = 0;
     } else if (history.back() == 2) {
-        mv = get_random({25, 30, 0});
+        mv = getRandom({25, 30, 0});
     } else if (history.back() == 0) {
-        mv = get_random({0, 30, 45});
+        mv = getRandom({0, 30, 45});
     } else if (history.back() == 1 && history.size() > 1 && *next(history.rbegin()) == 1) {
-        mv = get_random({25, 0, 45});
+        mv = getRandom({25, 0, 45});
     } else {
-        mv = get_random({25, 30, 45});
+        mv = getRandom({25, 30, 45});
     }
     return cur_move = mv;
 }

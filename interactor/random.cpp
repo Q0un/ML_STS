@@ -1,6 +1,6 @@
 #include "random.h"
 
-int get_random(const std::vector<int> &ps) {
+int getRandom(const std::vector<int> &ps) {
     int sum = 0;
     for (int i : ps) {
         sum += i;

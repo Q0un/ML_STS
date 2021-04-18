@@ -19,12 +19,12 @@ public:
     Card(Card_type type, int dmg, int def, int cost);
     Card(json &info);
 
-    void add_effect(Card_effect e, int val);
-    json get_json() const;
-    int get_cost() const;
+    void addEffect(Card_effect e, int val);
+    json getJson() const;
+    int getCost() const;
     void use(Entity *player, Entity *mob = nullptr) const;
     void load(json &info);
-    Card_type get_type() const;
+    Card_type getType() const;
 };
 
 #endif //STS_PROJECT_CARDS_H

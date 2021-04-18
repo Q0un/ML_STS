@@ -13,11 +13,11 @@ public:
     Player(int max_hp);
     Player(json &info);
 
-    json get_json() const;
+    json getJson() const;
     void update();
     void load(json &info);
     void reset();
-    int get_dhp() const;
+    int getDhp() const;
 };
 
 #endif //STS_PROJECT_PLAYER_H
