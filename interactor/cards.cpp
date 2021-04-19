@@ -1,12 +1,12 @@
 #include "cards.h"
 
-Card::Card(Card_type type, int dmg, int def, int cost) : type(type), dmg(dmg), def(def), cost(cost) {}
+Card::Card(CardType type, int dmg, int def, int cost) : type(type), dmg(dmg), def(def), cost(cost) {}
 
 Card::Card(json &info) {
     load(info);
 }
 
-void Card::addEffect(Card_effect e, int val) {
+void Card::addEffect(CardEffect e, int val) {
     effects.emplace_back(e, val);
 }
 
@@ -50,6 +50,6 @@ void Card::load(json &info) {
     }
 }
 
-Card_type Card::getType() const {
+CardType Card::getType() const {
     return type;
 }

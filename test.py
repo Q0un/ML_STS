@@ -116,7 +116,7 @@ class QLearningAgent:
         return action
 
 
-agent = QLearningAgent(alpha=0.5, epsilon=0.25, discount=0.9)
+agent = QLearningAgent(alpha=0.5, epsilon=0.5, discount=0.92)
 
 
 def state_to_tuple(d):
@@ -132,7 +132,7 @@ def state_to_tuple(d):
     return tuple(res)
 
 
-def play_and_train(agent, t_max=10**4):
+def play_and_train(agent, t_max=30):
     """
     This function should
     - run a full game, actions given by agent's e-greedy policy
@@ -169,13 +169,23 @@ def play_and_train(agent, t_max=10**4):
 
 from IPython.display import clear_output
 
+
 logs = open("rewards.log", "w")
 rewards = []
-for i in range(1000):
+for i in range(500000):
     rewards.append(play_and_train(agent))
-    agent.epsilon *= 0.99
+    agent.epsilon *= 0.995
+
+    if np.mean(rewards[-30:]) < 0 and agent.epsilon < 0.3:
+        agent.epsilon = 0.4
+
+    if np.mean(rewards[-30:]) < 50 and agent.epsilon < 0.2:
+        agent.epsilon = 0.3
+
+    if np.mean(rewards[-30:]) < 90 and agent.epsilon < 0.1:
+        agent.epsilon = 0.2
 
     if i % 100 == 0:
-        print(np.mean(rewards[-10:]), file=logs)
+        print(np.mean(rewards[-30:]), file=logs)
 
 print(-2)

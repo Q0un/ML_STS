@@ -2,7 +2,7 @@
 
 std::vector<std::string> actionS = {"play", "end"};
 
-Action::Action(actType type, const std::vector<int> &args) : type(type), args(args) {}
+Action::Action(ActType type, const std::vector<int> &args) : type(type), args(args) {}
 
 json Action::getJson() const {
     json res;

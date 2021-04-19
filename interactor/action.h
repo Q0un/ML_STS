@@ -6,15 +6,15 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum class actType{Play, End};
+enum class ActType{Play, End};
 
 class Action {
 public:
-    actType type;
+    ActType type;
     std::vector<int> args;
 
     Action() = default;
-    Action(actType type, const std::vector<int> &args = {});
+    Action(ActType type, const std::vector<int> &args = {});
 
     json getJson() const;
     friend std::ofstream& operator<<(std::ofstream &out, const Action &act);

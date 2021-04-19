@@ -15,7 +15,8 @@ using json = nlohmann::json;
 enum class State{Fight, Lose, Win, Nothing};
 
 class Env {
-    std::vector<Card> deck;
+    std::vector<Card> card_pool;
+    std::vector<int> deck;
     std::vector<int> hand, pool, offpool;
     std::vector<Mob*> mobs;
     Player player;
@@ -29,6 +30,7 @@ public:
     Env();
     ~Env();
 
+    void loadCards();
     void reset();
     void startFight();
     json getState();
