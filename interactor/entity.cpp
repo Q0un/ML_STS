@@ -4,13 +4,13 @@ Entity::Entity(int max_hp) : max_hp(max_hp), hp(max_hp), def(0) {
     std::fill(effects, effects + (int)Effect::N_EFFECTS, 0);
 }
 
-int Entity::deal_dmg(int dmg) const {
-    dmg += effects[(int)Effect::strength];
+int Entity::dealDmg(int dmg) const {
+    dmg += effects[(int)Effect::Strength];
     return dmg;
 }
 
-void Entity::take_dmg(int dmg) {
-    if (effects[(int)Effect::vulnerable]) {
+void Entity::takeDmg(int dmg) {
+    if (effects[(int)Effect::Vulnerable]) {
         dmg += dmg / 2;
     }
     int def_dmg = std::min(def, dmg);
@@ -19,11 +19,11 @@ void Entity::take_dmg(int dmg) {
     hp = std::max(0, hp - dmg);
 }
 
-void Entity::add_effect(Effect e, int val) {
+void Entity::addEffect(Effect e, int val) {
     effects[(int)e] = val;
 }
 
-void Entity::add_def(int val) {
+void Entity::addDef(int val) {
     def += val;
 }
 
@@ -31,6 +31,10 @@ bool Entity::dead() const {
     return hp == 0;
 }
 
-int Entity::get_hp() const {
+int Entity::getHp() const {
     return hp;
+}
+
+int Entity::getDHp() const {
+    return max_hp - hp;
 }

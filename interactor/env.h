@@ -9,12 +9,14 @@
 #include "nlohmann/json.hpp"
 #include <random>
 #include <fstream>
+#include <iostream>
 using json = nlohmann::json;
 
-enum class State{fight, lose, win, nothing};
+enum class State{Fight, Lose, Win, Nothing};
 
 class Env {
-    std::vector<Card> deck;
+    std::vector<Card> card_pool;
+    std::vector<int> deck;
     std::vector<int> hand, pool, offpool;
     std::vector<Mob*> mobs;
     Player player;
@@ -23,24 +25,25 @@ class Env {
     std::ofstream logs;
     int max_energy, energy;
     std::vector<Action> available_acts;
-    int mobhp_boof;
 
 public:
     Env();
     ~Env();
 
+    void loadCards();
     void reset();
-    void start_fight();
-    json get_state();
-    void update_hand();
-    void mob_turn();
-    void use_card(int card, int mob);
-    std::pair<json, double> step(const Action &act);
-    State get_gamestate() const;
-    std::vector<Action> get_acts() const;
-    Action sample_act() const;
-    int mobs_hp() const;
-    void update_actions();
+    void startFight();
+    json getState();
+    void updateHand();
+    void mobTurn();
+    void useCard(int card, int mob);
+    double step(const Action &act);
+    State getGamestate() const;
+    std::vector<Action> getActs() const;
+    Action sampleAct() const;
+    int mobsHp() const;
+    void updateActions();
+    void printState();
 };
 
 #endif //STS_PROJECT_ENV_H

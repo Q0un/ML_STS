@@ -6,7 +6,7 @@ Player::Player(json &info) : Entity() {
     load(info);
 }
 
-json Player::get_json() const {
+json Player::getJson() const {
     json res;
     res["max_hp"] = max_hp;
     res["hp"] = hp;
@@ -32,8 +32,4 @@ void Player::load(json &info) {
 void Player::reset() {
     hp = max_hp;
     def = 0;
-}
-
-int Player::get_dhp() const {
-    return max_hp - hp;
 }

@@ -1,16 +1,16 @@
 #include "cards.h"
 
-Card::Card(Card_type type, int dmg, int def, int cost) : type(type), dmg(dmg), def(def), cost(cost) {}
+Card::Card(CardType type, int dmg, int def, int cost) : type(type), dmg(dmg), def(def), cost(cost) {}
 
 Card::Card(json &info) {
     load(info);
 }
 
-void Card::add_effect(Card_effect e, int val) {
+void Card::addEffect(CardEffect e, int val) {
     effects.emplace_back(e, val);
 }
 
-json Card::get_json() const {
+json Card::getJson() const {
     json res;
     res["dmg"] = dmg;
     res["def"] = def;
@@ -22,20 +22,20 @@ json Card::get_json() const {
     return res;
 }
 
-int Card::get_cost() const {
+int Card::getCost() const {
     return cost;
 }
 
 void Card::use(Entity *player, Entity *mob) const {
     if (dmg) {
-        mob->take_dmg(player->deal_dmg(dmg));
+        mob->takeDmg(player->dealDmg(dmg));
     }
     if (def) {
-        player->add_def(def);
+        player->addDef(def);
     }
     if (mob) {
         for (auto &e : effects) {
-            mob->add_effect((Effect) e.first, e.second);
+            mob->addEffect((Effect) e.first, e.second);
         }
     }
 }
@@ -50,6 +50,6 @@ void Card::load(json &info) {
     }
 }
 
-Card_type Card::get_type() const {
+CardType Card::getType() const {
     return type;
 }
