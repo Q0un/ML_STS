@@ -52,6 +52,7 @@ json Mob::getJson() const {
     res["hp"] = hp;
     res["type"] = type;
     res["move"] = cur_move;
+    res["def"] = def;
     res["effects"] = json::array();
     for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
         res["effects"].emplace_back(effects[i]);
