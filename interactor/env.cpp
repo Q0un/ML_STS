@@ -160,12 +160,12 @@ double Env::step(const Action &act) {
                 mob = act.args[1];
             }
             useCard(card, mob);
-            rew = 3 * (mobhp_boof - mobsHp());
+            rew = (mobhp_boof - mobsHp());
         } else if (act.type == ActType::End) {
             int playerhp_boof = player.getHp();
             mobTurn();
 
-            rew = -(playerhp_boof - player.getHp());
+            rew = -5 * (playerhp_boof - player.getHp());
 
             if (player.dead()) {
                 game_state = State::Lose;

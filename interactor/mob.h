@@ -47,7 +47,7 @@ public:
     void move(Entity &player);
 
 protected:
-    virtual int getMove();
+    virtual int chooseMove();
 };
 
 class JawWorm : public Mob {
@@ -55,7 +55,7 @@ public:
     JawWorm();
 
 protected:
-    int getMove() override;
+    int chooseMove() override;
 };
 
 #endif //STS_PROJECT_MOB_H

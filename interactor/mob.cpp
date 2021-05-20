@@ -67,10 +67,10 @@ void Mob::move(Entity &player) {
             effects[i]--;
         }
     }
-    getMove();
+    chooseMove();
 }
 
-int Mob::getMove() {
+int Mob::chooseMove() {
     assert(0);
     return cur_move = -1;
 }
@@ -88,10 +88,10 @@ JawWorm::JawWorm() : Mob() {
     MobMoves thrash({ {MobMoveType::Attack, {7, 1}}, {MobMoveType::Defend, {5}} });
     MobMoves bellow({ {MobMoveType::Defend, {6}}, {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
     available_moves = {chomp, thrash, bellow};
-    getMove();
+    chooseMove();
 }
 
-int JawWorm::getMove() {
+int JawWorm::chooseMove() {
     int mv = -1;
     if (history.empty()) {
         mv = 0;

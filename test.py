@@ -1,144 +1,125 @@
 import json
+import torch, torch.nn as nn
 import numpy as np
-from collections import defaultdict
+import torch.nn.functional as F
+from torch.autograd import Variable
 import random
-import math
-import numpy as np
-import gym
-import matplotlib.pyplot as plt
-from IPython.display import clear_output
-
-
-class QLearningAgent:
-    def __init__(self, alpha, epsilon, discount):
-        """
-        Q-Learning Agent
-        based on https://inst.eecs.berkeley.edu/~cs188/sp19/projects.html
-        Instance variables you have access to
-          - self.epsilon (exploration prob)
-          - self.alpha (learning rate)
-          - self.discount (discount rate aka gamma)
-
-        Functions you should use
-          - self.get_legal_actions(state) {state, hashable -> list of actions, each is hashable}
-            which returns legal actions for a state
-          - self.get_qvalue(state,action)
-            which returns Q(state,action)
-          - self.set_qvalue(state,action,value)
-            which sets Q(state,action) := value
-        !!!Important!!!
-        Note: please avoid using self._qValues directly.
-            There's a special self.get_qvalue/set_qvalue for that.
-        """
-
-        self._qvalues = defaultdict(lambda: defaultdict(lambda: 0))
-        self.alpha = alpha
-        self.epsilon = epsilon
-        self.discount = discount
-
-    def get_qvalue(self, state, action):
-        """ Returns Q(state,action) """
-        return self._qvalues[state][action]
-
-    def set_qvalue(self, state, action, value):
-        """ Sets the Qvalue for [state,action] to the given value """
-        self._qvalues[state][action] = value
-
-    def get_value(self, state, possible_actions):
-        """
-        Compute your agent's estimate of V(s) using current q-values
-        V(s) = max_over_action Q(state,action) over possible actions.
-        Note: please take into account that q-values can be negative.
-        """
-
-        # If there are no legal actions, return 0.0
-        if len(possible_actions) == 0:
-            return 0.0
-
-        act = max(possible_actions, key=lambda x: self.get_qvalue(state, x))
-        value = self.get_qvalue(state, act)
-
-        return value
-
-    def update(self, state, action, reward, next_state, next_possible_actions):
-        """
-        You should do your Q-Value update here:
-           Q(s,a) := (1 - alpha) * Q(s,a) + alpha * (r + gamma * V(s'))
-        """
-
-        # agent parameters
-        gamma = self.discount
-        learning_rate = self.alpha
-
-        qval = (1 - self.alpha) * self.get_qvalue(state, action) + self.alpha * (reward + gamma * self.get_value(next_state, next_possible_actions))
-
-        self.set_qvalue(state, action, qval)
-
-    def get_best_action(self, state, possible_actions):
-        """
-        Compute the best action to take in a state (using current q-values).
-        """
-
-        # If there are no legal actions, return None
-        if len(possible_actions) == 0:
-            return None
-
-        best_action = max(possible_actions, key=lambda x: self.get_qvalue(state, x))
-
-        return best_action
-
-    def get_action(self, state, possible_actions):
-        """
-        Compute the action to take in the current state, including exploration.
-        With probability self.epsilon, we should take a random action.
-            otherwise - the best policy action (self.get_best_action).
-
-        Note: To pick randomly from a list, use random.choice(list).
-              To pick True or False with a given probablity, generate uniform number in [0, 1]
-              and compare it with your probability
-        """
-
-        # Pick Action
-        action = None
-
-        # If there are no legal actions, return None
-        if len(possible_actions) == 0:
-            return None
-
-        # agent parameters:
-        epsilon = self.epsilon
-
-        if random.random() < epsilon:
-            action = random.choice(possible_actions)
-        else:
-            action = self.get_best_action(state, possible_actions)
-
-        return action
-
-
-agent = QLearningAgent(alpha=0.5, epsilon=0.5, discount=0.92)
-
+import pickle
 
 def state_to_tuple(d):
-    res = []
-    if isinstance(d, dict):
-        for i in d.values():
-            res.append(state_to_tuple(i))
-    elif isinstance(d, list):
-        for i in d:
-            res.append(state_to_tuple(i))
+    res = np.zeros(36)
+    res[0] = d["game_state"]
+    if d["game_state"] == 0:
+        res[1] = d["energy"]
+        res[2] = d["player"]["hp"]
+        res[3] = d["player"]["def"]
+        res[4] = d["mobs"][0]["type"]
+        res[5] = d["mobs"][0]["hp"]
+        res[6] = d["mobs"][0]["def"]
+        res[7] = d["mobs"][0]["move"]
+        res[8] = d["mobs"][0]["effects"][0]
+        res[9] = d["mobs"][0]["effects"][1]
+        res[10] = d["mobs"][0]["effects"][2]
+        for i in range(len(d["hand"])):
+            res[11 + i] = d["hand"][i]
+        for i in range(len(d["pool"])):
+            res[16 + i] = d["pool"][i]
+        for i in range(len(d["offpool"])):
+            res[26 + i] = d["offpool"][i]
+    return res
+
+
+OUTPUT_NEURS = 16
+
+
+network = nn.Sequential(
+    #example of Sequential using, experiemnt with this
+    nn.Linear(36, 256),
+    nn.ReLU(),
+    nn.Linear(256, 256),
+    nn.ReLU(),
+    nn.Linear(256, 128),
+    nn.ReLU(),
+    nn.Linear(128, OUTPUT_NEURS)
+)
+
+
+def get_action(state, n_actions, epsilon=0):
+    """
+    sample actions with epsilon-greedy policy
+    recap: with p = epsilon pick random action, else pick action with highest Q(s,a)
+    """
+    state = Variable(torch.FloatTensor(state[None]))
+    q_values = network(state).data.cpu().numpy()
+
+    possible_actions = range(n_actions)
+    action = None
+
+    if random.random() < epsilon:
+        action = random.choice(possible_actions)
     else:
-        res = [d]
-    return tuple(res)
+        action = max(possible_actions, key=lambda x: q_values[0][x])
+
+    return action
 
 
-def play_and_train(agent, t_max=30):
-    """
-    This function should
-    - run a full game, actions given by agent's e-greedy policy
-    - train agent using agent.update(...) whenever it is possible
-    - return total reward
-    """
+def to_one_hot(y, n_dims=None):
+    """ helper: take an integer vector (tensor of variable) and convert it to 1-hot matrix. """
+    y_tensor = y.data if isinstance(y, Variable) else y
+    y_tensor = y_tensor.type(torch.LongTensor).view(-1, 1)
+    n_dims = n_dims if n_dims is not None else int(torch.max(y_tensor)) + 1
+    y_one_hot = torch.zeros(y_tensor.size()[0], n_dims).scatter_(1, y_tensor, 1)
+    return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
+
+def where(cond, x_1, x_2):
+    """ helper: like np.where but in pytorch. """
+    return (cond * x_1) + ((1-cond) * x_2)
+
+
+def compute_td_loss(states, actions, rewards, next_states, is_done, gamma = 0.9, check_shapes = False):
+    states = Variable(torch.FloatTensor(states))    # shape: [batch_size, state_size]
+    actions = Variable(torch.IntTensor(actions))    # shape: [batch_size]
+    rewards = Variable(torch.FloatTensor(rewards))  # shape: [batch_size]
+    next_states = Variable(torch.FloatTensor(next_states)) # shape: [batch_size, state_size]
+    is_done = Variable(torch.FloatTensor(is_done))  # shape: [batch_size]
+
+    #get q-values for all actions in current states (use network)
+    predicted_qvalues = network(states)
+
+    #select q-values for chosen actions
+    predicted_qvalues_for_actions = torch.sum(predicted_qvalues * to_one_hot(actions, OUTPUT_NEURS), dim=1)
+
+    # compute q-values for all actions in next states (use network)
+    predicted_next_qvalues = network(next_states)
+
+    # compute V*(next_states) using predicted next q-values
+    next_state_values = torch.max(predicted_next_qvalues, dim = 1)[0]
+    assert isinstance(next_state_values.data, torch.FloatTensor)
+
+    # compute "target q-values" for loss - it's what's inside square parentheses in the above formula.
+    target_qvalues_for_actions = rewards + gamma * next_state_values
+
+    # at the last state we shall use simplified formula: Q(s,a) = r(s,a) since s' doesn't exist
+    target_qvalues_for_actions = where(is_done, rewards, target_qvalues_for_actions)
+
+    #mean squared error loss to minimize
+    loss = F.mse_loss(predicted_qvalues_for_actions, target_qvalues_for_actions.detach())
+
+    if check_shapes and False:
+        assert predicted_next_qvalues.data.dim() == 2, "make sure you predicted q-values for all actions in next state"
+        assert next_state_values.data.dim() == 1, "make sure you computed V(s') as maximum over just the actions axis and not all axes"
+        assert target_qvalues_for_actions.data.dim() == 1, "there's something wrong with target q-values, they must be a vector"
+
+    return loss
+
+
+opt = torch.optim.Adam(network.parameters(), lr=1e-4)   #create an optim
+epsilon = 0.4 # set default epsilon
+
+
+def generate_session(t_max=1000, epsilon=0, train=False):
+    """play env with approximate q-learning agent and train it at the same time"""
+    total_reward = 0
     print(-1)
     total_reward = float(input())
     state = json.loads(input())
@@ -146,46 +127,46 @@ def play_and_train(agent, t_max=30):
     possible_actions = json.loads(input())
 
     for t in range(t_max):
-        # get agent to pick action given state s.
-        action = agent.get_action(l_state, range(len(possible_actions)))
-        print(action)
+        a = get_action(l_state, len(possible_actions), epsilon=epsilon)
+        print(a)
         reward = float(input())
         next_state = json.loads(input())
         l_next_state = state_to_tuple(next_state)
         next_possible_actions = json.loads(input())
 
-        # train (update) agent for state s
-        agent.update(l_state, action, reward, l_next_state, range(len(next_possible_actions)))
+        done = (l_next_state[0] == 1) or (l_next_state[0] == 2)
 
+        if train:
+            opt.zero_grad()
+            compute_td_loss([l_state], [a], [reward], [l_next_state], [done]).backward()
+            opt.step()
+
+        total_reward += reward
         state = next_state
         l_state = l_next_state
         possible_actions = next_possible_actions
-        total_reward += reward
-        if state["game_state"] == 1 or state["game_state"] == 2:
-            break
+        if done: break
 
     return total_reward
 
-
 from IPython.display import clear_output
 
-
 logs = open("rewards.log", "w")
-rewards = []
-for i in range(500000):
-    rewards.append(play_and_train(agent))
-    agent.epsilon *= 0.995
 
-    if np.mean(rewards[-30:]) < 0 and agent.epsilon < 0.3:
-        agent.epsilon = 0.4
+for i in range(200):
+    session_rewards = [generate_session(epsilon=epsilon, train=True) for _ in range(100)]#play some sessions (generate_session)
+    print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=logs)
 
-    if np.mean(rewards[-30:]) < 50 and agent.epsilon < 0.2:
-        agent.epsilon = 0.3
+    epsilon *= 0.995 #reduce exploration coef over time
+    if epsilon < 0.2 and np.mean(session_rewards) < -70:
+        epsilon = 0.25
+    if epsilon < 0.1 and np.mean(session_rewards) < -50:
+        epsilon = 0.18
+    assert epsilon >= 1e-4, "Make sure epsilon is always nonzero during training"
 
-    if np.mean(rewards[-30:]) < 90 and agent.epsilon < 0.1:
-        agent.epsilon = 0.2
-
-    if i % 100 == 0:
-        print(np.mean(rewards[-30:]), file=logs)
+    if np.mean(session_rewards) > -10:
+        break
 
 print(-2)
+
+pickle.dump(network, open("model.sav", "wb"))
