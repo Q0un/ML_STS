@@ -17,6 +17,14 @@ MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
     }
 }
 
+int MobMove::getDmg(const Entity &mob) const {
+    int res = 0;
+    for (int i = 0; i < count_dmg; i++) {
+        res += mob.dealDmg(dmg);
+    }
+    return res;
+}
+
 MobMoves::MobMoves(const std::vector<MobMove> &moves) : moves(moves) {}
 
 void MobMove::apply(Entity &player, Entity &mob) {
@@ -39,6 +47,10 @@ void MobMoves::apply(Entity &player, Entity &mob) {
     }
 }
 
+const std::vector<MobMove> & MobMoves::getMoves() const {
+    return moves;
+}
+
 // Mob
 
 Mob::Mob() {
@@ -52,6 +64,7 @@ json Mob::getJson() const {
     res["hp"] = hp;
     res["type"] = type;
     res["move"] = cur_move;
+    res["def"] = def;
     res["effects"] = json::array();
     for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
         res["effects"].emplace_back(effects[i]);
@@ -66,12 +79,21 @@ void Mob::move(Entity &player) {
             effects[i]--;
         }
     }
-    getMove();
+    chooseMove();
 }
 
-int Mob::getMove() {
+int Mob::chooseMove() {
     assert(0);
     return cur_move = -1;
+}
+
+int Mob::getDmg() const {
+    int dmg = 0;
+    MobMoves moves = available_moves[cur_move];
+    for (auto &move : moves.getMoves()) {
+        dmg += move.getDmg(*this);
+    }
+    return dmg;
 }
 
 // Samples
@@ -87,10 +109,10 @@ JawWorm::JawWorm() : Mob() {
     MobMoves thrash({ {MobMoveType::Attack, {7, 1}}, {MobMoveType::Defend, {5}} });
     MobMoves bellow({ {MobMoveType::Defend, {6}}, {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
     available_moves = {chomp, thrash, bellow};
-    getMove();
+    chooseMove();
 }
 
-int JawWorm::getMove() {
+int JawWorm::chooseMove() {
     int mv = -1;
     if (history.empty()) {
         mv = 0;

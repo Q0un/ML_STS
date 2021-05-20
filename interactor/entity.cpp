@@ -38,3 +38,7 @@ int Entity::getHp() const {
 int Entity::getDHp() const {
     return max_hp - hp;
 }
+
+int Entity::getDef() const {
+    return def;
+}

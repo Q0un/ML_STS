@@ -21,6 +21,7 @@ public:
     bool dead() const;
     int getHp() const;
     int getDHp() const;
+    int getDef() const;
 };
 
 #endif //STS_PROJECT_ENTITY_H

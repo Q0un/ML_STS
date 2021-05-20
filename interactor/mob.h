@@ -21,6 +21,7 @@ public:
     MobMove(MobMoveType type, const std::vector<int> &args);
 
     void apply(Entity &player, Entity &mob);
+    int getDmg(const Entity &mob) const;
 };
 
 class MobMoves {
@@ -31,6 +32,7 @@ public:
     MobMoves(const std::vector<MobMove> &moves);
 
     void apply(Entity &player, Entity &mob);
+    const std::vector<MobMove>& getMoves() const;
 };
 
 class Mob : public Entity{
@@ -45,9 +47,10 @@ public:
 
     json getJson() const;
     void move(Entity &player);
+    int getDmg() const;
 
 protected:
-    virtual int getMove();
+    virtual int chooseMove();
 };
 
 class JawWorm : public Mob {
@@ -55,7 +58,7 @@ public:
     JawWorm();
 
 protected:
-    int getMove() override;
+    int chooseMove() override;
 };
 
 #endif //STS_PROJECT_MOB_H
