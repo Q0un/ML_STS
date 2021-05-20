@@ -48,7 +48,7 @@ def get_action(state, n_actions, epsilon=0):
     return action
 
 
-network = pickle.load(open("model.sav", "rb"))
+network = pickle.load(open("DQLAgent.sav", "rb"))
 
 
 def generate_session(t_max=1000, epsilon=0, train=False):
