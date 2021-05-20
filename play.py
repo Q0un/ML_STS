@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import random
 import pickle
+import sys
 
 def state_to_tuple(d):
     res = np.zeros(36)
@@ -74,9 +75,17 @@ def generate_session(t_max=1000, epsilon=0, train=False):
         state = next_state
         l_state = l_next_state
         possible_actions = next_possible_actions
-        if done: break
+        if done:
+            break
+        else:
+            print("Player HP: ", next_state["player"]["hp"], " | ", "Mob HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
 
+    if state["game_state"] == 1:
+        print("Lose :(")
+    else:
+        print("WIN :) | Player HP: ", state["player"]["hp"], file=sys.stderr)
     return total_reward
 
 
 generate_session()
+print(-2)

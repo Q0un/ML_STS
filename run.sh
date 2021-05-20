@@ -1,1 +1,1 @@
- : | { ./cmake-build-debug/interactor/interactor_output/interactor | python3 ./test.py; } > /dev/fd/0
+ : | { ./cmake-build-debug/interactor/interactor_output/interactor | python3 ./play.py; } > /dev/fd/0
