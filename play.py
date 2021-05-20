@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import random
 import pickle
 import sys
+import time
 
 def state_to_tuple(d):
     res = np.zeros(36)
@@ -79,6 +80,7 @@ def generate_session(t_max=1000, epsilon=0, train=False):
             break
         else:
             print("Player HP: ", next_state["player"]["hp"], " | ", "Mob HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
+        time.sleep(1)
 
     if state["game_state"] == 1:
         print("Lose :(")
