@@ -76,7 +76,7 @@ def where(cond, x_1, x_2):
     return (cond * x_1) + ((1-cond) * x_2)
 
 
-def compute_td_loss(states, actions, rewards, next_states, is_done, gamma = 0.9, check_shapes = False):
+def compute_td_loss(states, actions, rewards, next_states, is_done, gamma = 0.99, check_shapes = False):
     states = Variable(torch.FloatTensor(states))    # shape: [batch_size, state_size]
     actions = Variable(torch.IntTensor(actions))    # shape: [batch_size]
     rewards = Variable(torch.FloatTensor(rewards))  # shape: [batch_size]
@@ -114,7 +114,7 @@ def compute_td_loss(states, actions, rewards, next_states, is_done, gamma = 0.9,
 
 
 opt = torch.optim.Adam(network.parameters(), lr=1e-4)   #create an optim
-epsilon = 0.4 # set default epsilon
+epsilon = 0.3 # set default epsilon
 
 
 def generate_session(t_max=1000, epsilon=0, train=False):
@@ -153,18 +153,18 @@ from IPython.display import clear_output
 
 logs = open("rewards.log", "w")
 
-for i in range(200):
+for i in range(100):
     session_rewards = [generate_session(epsilon=epsilon, train=True) for _ in range(100)]#play some sessions (generate_session)
     print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=logs)
 
     epsilon *= 0.995 #reduce exploration coef over time
-    if epsilon < 0.2 and np.mean(session_rewards) < -70:
+    if epsilon < 0.2 and np.mean(session_rewards) < 8:
         epsilon = 0.25
-    if epsilon < 0.1 and np.mean(session_rewards) < -50:
+    if epsilon < 0.1 and np.mean(session_rewards) < 15:
         epsilon = 0.18
     assert epsilon >= 1e-4, "Make sure epsilon is always nonzero during training"
 
-    if np.mean(session_rewards) > -10:
+    if np.mean(session_rewards) > 30:
         break
 
 print(-2)

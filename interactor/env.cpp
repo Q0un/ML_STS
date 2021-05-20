@@ -156,16 +156,18 @@ double Env::step(const Action &act) {
             int card = act.args[0];
             int mob = -1;
             int mobhp_boof = mobsHp();
+            int dmg_remained = std::max(sumDmg() - player.getDef(), 0);
+            int def_boof = player.getDef();
             if (act.args.size() > 1) {
                 mob = act.args[1];
             }
             useCard(card, mob);
-            rew = (mobhp_boof - mobsHp());
+            rew = (mobhp_boof - mobsHp()) + 2 * std::min(dmg_remained, player.getDef() - def_boof);
         } else if (act.type == ActType::End) {
             int playerhp_boof = player.getHp();
+            rew = -2 * sumDmg();
             mobTurn();
 
-            rew = -5 * (playerhp_boof - player.getHp());
 
             if (player.dead()) {
                 game_state = State::Lose;
@@ -217,6 +219,14 @@ int Env::mobsHp() const {
         res += mob->getHp();
     }
     return res;
+}
+
+int Env::sumDmg() const {
+    int dmg = 0;
+    for (auto mob : mobs) {
+        dmg += mob->getDmg();
+    }
+    return dmg;
 }
 
 void Env::updateActions() {

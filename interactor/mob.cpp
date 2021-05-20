@@ -17,6 +17,14 @@ MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
     }
 }
 
+int MobMove::getDmg(const Entity &mob) const {
+    int res = 0;
+    for (int i = 0; i < count_dmg; i++) {
+        res += mob.dealDmg(dmg);
+    }
+    return res;
+}
+
 MobMoves::MobMoves(const std::vector<MobMove> &moves) : moves(moves) {}
 
 void MobMove::apply(Entity &player, Entity &mob) {
@@ -37,6 +45,10 @@ void MobMoves::apply(Entity &player, Entity &mob) {
     for (auto &move : moves) {
         move.apply(player, mob);
     }
+}
+
+const std::vector<MobMove> & MobMoves::getMoves() const {
+    return moves;
 }
 
 // Mob
@@ -73,6 +85,15 @@ void Mob::move(Entity &player) {
 int Mob::chooseMove() {
     assert(0);
     return cur_move = -1;
+}
+
+int Mob::getDmg() const {
+    int dmg = 0;
+    MobMoves moves = available_moves[cur_move];
+    for (auto &move : moves.getMoves()) {
+        dmg += move.getDmg(*this);
+    }
+    return dmg;
 }
 
 // Samples

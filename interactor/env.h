@@ -44,6 +44,7 @@ public:
     int mobsHp() const;
     void updateActions();
     void printState();
+    int sumDmg() const;
 };
 
 #endif //STS_PROJECT_ENV_H
