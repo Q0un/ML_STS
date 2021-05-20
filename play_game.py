@@ -10,10 +10,11 @@ import time
 import os
 
 PATH = os.path.dirname(__file__)
+INPUT_NEURS = 26
 
 
 def state_to_tuple(d):
-    res = np.zeros(36)
+    res = np.zeros(26)
     if d["game_state"]["room_phase"] == "COMBAT":
         res[0] = 0
     else:
@@ -45,13 +46,6 @@ def state_to_tuple(d):
                 res[16 + i] = 1
             elif d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Bash":
                 res[16 + i] = 2
-        for i in range(len(d["game_state"]["combat_state"]["discard_pile"])):
-            if d["game_state"]["combat_state"]["discard_pile"][i]["id"] == "Strike_R":
-                res[26 + i] = 0
-            elif d["game_state"]["combat_state"]["discard_pile"][i]["id"] == "Defend_R":
-                res[26 + i] = 1
-            elif d["game_state"]["combat_state"]["discard_pile"][i]["id"] == "Bash":
-                res[26 + i] = 2
     return res
 
 
