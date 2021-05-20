@@ -5,9 +5,14 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import random
 import pickle
+import sys
+
+INPUT_NEURS = 26
+OUTPUT_NEURS = 16
+
 
 def state_to_tuple(d):
-    res = np.zeros(36)
+    res = np.zeros(INPUT_NEURS)
     res[0] = d["game_state"]
     if d["game_state"] == 0:
         res[1] = d["energy"]
@@ -24,17 +29,12 @@ def state_to_tuple(d):
             res[11 + i] = d["hand"][i]
         for i in range(len(d["pool"])):
             res[16 + i] = d["pool"][i]
-        for i in range(len(d["offpool"])):
-            res[26 + i] = d["offpool"][i]
     return res
-
-
-OUTPUT_NEURS = 16
 
 
 network = nn.Sequential(
     #example of Sequential using, experiemnt with this
-    nn.Linear(36, 256),
+    nn.Linear(INPUT_NEURS, 256),
     nn.ReLU(),
     nn.Linear(256, 256),
     nn.ReLU(),
@@ -153,11 +153,10 @@ from IPython.display import clear_output
 
 logs = open("rewards.log", "w")
 
-last = [-1, -1, -1]
-
 for i in range(500):
     session_rewards = [generate_session(epsilon=epsilon, train=True) for _ in range(100)]#play some sessions (generate_session)
     print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=logs)
+    print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=sys.stderr)
     logs.flush()
 
     epsilon *= 0.99 #reduce exploration coef over time
@@ -169,10 +168,7 @@ for i in range(500):
         epsilon = 0.1
     assert epsilon >= 1e-4, "Make sure epsilon is always nonzero during training"
 
-    last.append(np.mean(session_rewards))
-    last.pop(0)
-
-    if min(last) >= 18:
+    if np.mean(session_rewards) >= 20:
         break
 
 print(-2)

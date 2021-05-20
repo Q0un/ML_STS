@@ -6,9 +6,13 @@ from torch.autograd import Variable
 import random
 import pickle
 import sys
+import time
+
+INPUT_NEURS = 26
+
 
 def state_to_tuple(d):
-    res = np.zeros(36)
+    res = np.zeros(INPUT_NEURS)
     res[0] = d["game_state"]
     if d["game_state"] == 0:
         res[1] = d["energy"]
@@ -25,8 +29,6 @@ def state_to_tuple(d):
             res[11 + i] = d["hand"][i]
         for i in range(len(d["pool"])):
             res[16 + i] = d["pool"][i]
-        for i in range(len(d["offpool"])):
-            res[26 + i] = d["offpool"][i]
     return res
 
 
@@ -79,6 +81,7 @@ def generate_session(t_max=1000, epsilon=0, train=False):
             break
         else:
             print("Player HP: ", next_state["player"]["hp"], " | ", "Mob HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
+        time.sleep(1)
 
     if state["game_state"] == 1:
         print("Lose :(")
