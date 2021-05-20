@@ -163,6 +163,9 @@ double Env::step(const Action &act) {
             }
             useCard(card, mob);
             rew = (mobhp_boof - mobsHp()) + 2 * std::min(dmg_remained, player.getDef() - def_boof);
+            if (dmg_remained == 0 && player.getDef() - def_boof > 0) {
+                rew -= 100;
+            }
         } else if (act.type == ActType::End) {
             int playerhp_boof = player.getHp();
             rew = -2 * sumDmg();
