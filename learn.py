@@ -47,10 +47,6 @@ network = nn.Sequential(
 
 
 def get_action(state, n_actions, epsilon=0):
-    """
-    sample actions with epsilon-greedy policy
-    recap: with p = epsilon pick random action, else pick action with highest Q(s,a)
-    """
     state = Variable(torch.FloatTensor(state[None]))
     q_values = network(state).data.cpu().numpy()
 
@@ -66,7 +62,6 @@ def get_action(state, n_actions, epsilon=0):
 
 
 def to_one_hot(y, n_dims=None):
-    """ helper: take an integer vector (tensor of variable) and convert it to 1-hot matrix. """
     y_tensor = y.data if isinstance(y, Variable) else y
     y_tensor = y_tensor.type(torch.LongTensor).view(-1, 1)
     n_dims = n_dims if n_dims is not None else int(torch.max(y_tensor)) + 1
@@ -74,7 +69,6 @@ def to_one_hot(y, n_dims=None):
     return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
 
 def where(cond, x_1, x_2):
-    """ helper: like np.where but in pytorch. """
     return (cond * x_1) + ((1-cond) * x_2)
 
 
@@ -120,7 +114,6 @@ epsilon = 0.3 # set default epsilon
 
 
 def generate_session(t_max=1000, epsilon=0, train=False):
-    """play env with approximate q-learning agent and train it at the same time"""
     total_reward = 0
     print(-1)
     total_reward = float(input())

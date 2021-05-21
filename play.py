@@ -35,10 +35,6 @@ def state_to_tuple(d):
 
 
 def get_action(state, n_actions, epsilon=0):
-    """
-    sample actions with epsilon-greedy policy
-    recap: with p = epsilon pick random action, else pick action with highest Q(s,a)
-    """
     state = Variable(torch.FloatTensor(state[None]))
     q_values = network(state).data.cpu().numpy()
 
@@ -58,7 +54,6 @@ network = nn.Sequential()
 
 def generate_session(t_max=1000, epsilon=0, train=False):
     global network
-    """play env with approximate q-learning agent and train it at the same time"""
     total_reward = 0
     print(-1)
     total_reward = float(input())
