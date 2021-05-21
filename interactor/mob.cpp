@@ -27,7 +27,7 @@ int MobMove::getDmg(const Entity &mob) const {
     return res;
 }
 
-MobMoves::MobMoves(const std::vector<MobMove> &moves) : moves(moves) {}
+MobMoves::MobMoves(int id, const std::vector<MobMove> &moves) : id(id), moves(moves) {}
 
 void MobMove::apply(Entity &player, Entity &mob) {
     if (type == MobMoveType::Attack) {
@@ -53,6 +53,10 @@ const std::vector<MobMove> & MobMoves::getMoves() const {
     return moves;
 }
 
+int MobMoves::getId() const {
+    return id;
+}
+
 // Mob
 
 Mob::Mob() {
@@ -65,7 +69,7 @@ json Mob::getJson() const {
     res["max_hp"] = max_hp;
     res["hp"] = hp;
     res["type"] = type;
-    res["move"] = cur_move;
+    res["move"] = available_moves[cur_move].getId();
     res["def"] = def;
     res["effects"] = json::array();
     for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
@@ -114,9 +118,9 @@ JawWorm::JawWorm() : Mob() {
     int hpr = 44;
     max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
     type = MobType::JawWorm;
-    MobMoves chomp({ {MobMoveType::Attack, {11, 1}} });
-    MobMoves thrash({ {MobMoveType::Attack, {7, 1}}, {MobMoveType::Defend, {5}} });
-    MobMoves bellow({ {MobMoveType::Defend, {6}}, {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
+    MobMoves chomp(1, { {MobMoveType::Attack, {11, 1}} });
+    MobMoves thrash(3, { {MobMoveType::Attack, {7, 1}}, {MobMoveType::Defend, {5}} });
+    MobMoves bellow(2, { {MobMoveType::Defend, {6}}, {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
     available_moves = {chomp, thrash, bellow};
     chooseMove();
 }
@@ -144,8 +148,8 @@ Cultist::Cultist() : Mob() {
     int hpr = 54;
     max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
     type = MobType::Cultist;
-    MobMoves incantation({ {MobMoveType::Buff, {(int)Effect::Ritual, 3}} });
-    MobMoves darkStrike({ {MobMoveType::Attack, {6, 1}} });
+    MobMoves incantation(3, { {MobMoveType::Buff, {(int)Effect::Ritual, 3}} });
+    MobMoves darkStrike(1, { {MobMoveType::Attack, {6, 1}} });
     available_moves = {incantation, darkStrike};
     chooseMove();
 }

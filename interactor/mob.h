@@ -25,14 +25,16 @@ public:
 };
 
 class MobMoves {
+    int id;
     std::vector<MobMove> moves;
 
 public:
     MobMoves() = default;
-    MobMoves(const std::vector<MobMove> &moves);
+    MobMoves(int id, const std::vector<MobMove> &moves);
 
     void apply(Entity &player, Entity &mob);
     const std::vector<MobMove>& getMoves() const;
+    int getId() const;
 };
 
 class Mob : public Entity{

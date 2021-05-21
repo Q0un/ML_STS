@@ -10,7 +10,7 @@ import time
 import os
 
 PATH = os.path.dirname(__file__)
-INPUT_NEURS = 27
+INPUT_NEURS = 26
 
 
 def state_to_tuple(d):
@@ -23,18 +23,17 @@ def state_to_tuple(d):
         res[1] = d["game_state"]["combat_state"]["player"]["energy"]
         res[2] = d["game_state"]["combat_state"]["player"]["current_hp"]
         res[3] = d["game_state"]["combat_state"]["player"]["block"]
-        res[4] = 0  # type of mob
-        res[5] = d["game_state"]["combat_state"]["monsters"][0]["current_hp"]
-        res[6] = d["game_state"]["combat_state"]["monsters"][0]["block"]
-        res[7] = d["game_state"]["combat_state"]["monsters"][0]["move_id"]
+        res[4] = d["game_state"]["combat_state"]["monsters"][0]["current_hp"]
+        res[5] = d["game_state"]["combat_state"]["monsters"][0]["block"]
+        res[6] = d["game_state"]["combat_state"]["monsters"][0]["move_id"]
         for i in d["game_state"]["combat_state"]["monsters"][0]["powers"]:
             if i["id"] == "Vulnerable":
-                res[8] = i["amount"]
+                res[7] = i["amount"]
             elif i["id"] == "Strength":
-                res[10] = i["amount"]
+                res[9] = i["amount"]
             elif i["id"] == "Ritual":
-                res[11] = i["amount"]
-        last = 12
+                res[10] = i["amount"]
+        last = 11
         for i in range(len(d["game_state"]["combat_state"]["hand"])):
             if d["game_state"]["combat_state"]["hand"][i]["id"] == "Strike_R":
                 res[last + i] = 0
@@ -127,7 +126,8 @@ while True:
     state = input()
     print("choose 0")
     state = json.loads(input())
-    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "Cultist":
+    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "Cultist" and \
+            state["game_state"]["combat_state"]["monsters"][0]["id"] != "JawWorm":
         time.sleep(1)
         print("click Left 1910 10")
         state = input()

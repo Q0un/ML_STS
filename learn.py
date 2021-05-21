@@ -7,7 +7,7 @@ import random
 import pickle
 import sys
 
-INPUT_NEURS = 27
+INPUT_NEURS = 26
 OUTPUT_NEURS = 16
 
 
@@ -18,15 +18,14 @@ def state_to_tuple(d):
         res[1] = d["energy"]
         res[2] = d["player"]["hp"]
         res[3] = d["player"]["def"]
-        res[4] = d["mobs"][0]["type"]
-        res[5] = d["mobs"][0]["hp"]
-        res[6] = d["mobs"][0]["def"]
-        res[7] = d["mobs"][0]["move"]
-        res[8] = d["mobs"][0]["effects"][0]
-        res[9] = d["mobs"][0]["effects"][1]
-        res[10] = d["mobs"][0]["effects"][2]
-        res[11] = d["mobs"][0]["effects"][3]
-        last = 12
+        res[4] = d["mobs"][0]["hp"]
+        res[5] = d["mobs"][0]["def"]
+        res[6] = d["mobs"][0]["move"]
+        res[7] = d["mobs"][0]["effects"][0]
+        res[8] = d["mobs"][0]["effects"][1]
+        res[8] = d["mobs"][0]["effects"][2]
+        res[10] = d["mobs"][0]["effects"][3]
+        last = 11
         for i in range(len(d["hand"])):
             res[last + i] = d["hand"][i]
         last += 5
