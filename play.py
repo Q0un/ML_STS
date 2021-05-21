@@ -67,6 +67,12 @@ def generate_session(t_max=1000, epsilon=0, train=False):
     possible_actions = json.loads(input())
 
     mob_set = random.randint(0, 1)
+    mob_name = ""
+    if mob_set == 0:
+        mob_name = "Jaw Worm"
+    elif mob_set == 1:
+        mob_name = "Cultist"
+    print(mob_name + "!", file=sys.stderr)
     print(mob_set)
     if mob_set == 0:
         network = pickle.load(open("DQLAgent_JawWorm.sav", "rb"))
@@ -94,7 +100,7 @@ def generate_session(t_max=1000, epsilon=0, train=False):
         if done:
             break
         else:
-            print("Player HP: ", next_state["player"]["hp"], " | ", "Mob HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
+            print("Player HP: ", next_state["player"]["hp"], " | ", mob_name + " HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
         time.sleep(1)
 
     if state["game_state"] == 1:
