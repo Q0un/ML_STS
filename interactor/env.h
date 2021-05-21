@@ -32,7 +32,7 @@ public:
 
     void loadCards();
     void reset();
-    void startFight();
+    void startFight(int mob_set);
     json getState();
     void updateHand();
     void mobTurn();

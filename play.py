@@ -8,7 +8,7 @@ import pickle
 import sys
 import time
 
-INPUT_NEURS = 26
+INPUT_NEURS = 27
 
 
 def state_to_tuple(d):
@@ -25,10 +25,13 @@ def state_to_tuple(d):
         res[8] = d["mobs"][0]["effects"][0]
         res[9] = d["mobs"][0]["effects"][1]
         res[10] = d["mobs"][0]["effects"][2]
+        res[11] = d["mobs"][0]["effects"][3]
+        last = 12
         for i in range(len(d["hand"])):
-            res[11 + i] = d["hand"][i]
+            res[last + i] = d["hand"][i]
+        last += 5
         for i in range(len(d["pool"])):
-            res[16 + i] = d["pool"][i]
+            res[last + i] = d["pool"][i]
     return res
 
 
@@ -51,14 +54,26 @@ def get_action(state, n_actions, epsilon=0):
     return action
 
 
-network = pickle.load(open("DQLAgent.sav", "rb"))
+network = nn.Sequential()
 
 
 def generate_session(t_max=1000, epsilon=0, train=False):
+    global network
     """play env with approximate q-learning agent and train it at the same time"""
     total_reward = 0
     print(-1)
     total_reward = float(input())
+    state = json.loads(input())
+    l_state = state_to_tuple(state)
+    possible_actions = json.loads(input())
+
+    mob_set = random.randint(0, 1)
+    print(mob_set)
+    if mob_set == 0:
+        network = pickle.load(open("DQLAgent_JawWorm.sav", "rb"))
+    elif mob_set == 1:
+        network = pickle.load(open("DQLAgent_Cultist.sav", "rb"))
+    total_reward += float(input())
     state = json.loads(input())
     l_state = state_to_tuple(state)
     possible_actions = json.loads(input())

@@ -7,7 +7,7 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-enum class MobType{JawWorm, None};
+enum class MobType{JawWorm, Cultist, None};
 enum class MobMoveType{Attack, Defend, Buff, Debuff};
 
 class MobMove {
@@ -56,6 +56,14 @@ protected:
 class JawWorm : public Mob {
 public:
     JawWorm();
+
+protected:
+    int chooseMove() override;
+};
+
+class Cultist : public Mob {
+public:
+    Cultist();
 
 protected:
     int chooseMove() override;

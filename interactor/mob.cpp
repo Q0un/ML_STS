@@ -3,6 +3,8 @@
 // Mob moves
 
 MobMove::MobMove(MobMoveType type, const std::vector<int> &args) : type(type) {
+    dmg = count_dmg = def = count_effect = 0;
+    effect = Effect::N_EFFECTS;
     if (type == MobMoveType::Attack) {
         dmg = args[0];
         count_dmg = args[1];
@@ -73,11 +75,18 @@ json Mob::getJson() const {
 }
 
 void Mob::move(Entity &player) {
+    effects[(int)Effect::Strength] += effects[(int)Effect::Ritual];
     available_moves[cur_move].apply(player, *this);
+
     for (int i = 0; i < (int)Effect::N_TEMPS; i++) {
         if (effects[i]) {
             effects[i]--;
         }
+    }
+
+    history.push_back(cur_move);
+    if (history.size() > 3) {
+        history.pop_front();
     }
     chooseMove();
 }
@@ -128,3 +137,25 @@ int JawWorm::chooseMove() {
     return cur_move = mv;
 }
 
+// Cultist
+
+Cultist::Cultist() : Mob() {
+    int hpl = 48;
+    int hpr = 54;
+    max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
+    type = MobType::Cultist;
+    MobMoves incantation({ {MobMoveType::Buff, {(int)Effect::Ritual, 3}} });
+    MobMoves darkStrike({ {MobMoveType::Attack, {6, 1}} });
+    available_moves = {incantation, darkStrike};
+    chooseMove();
+}
+
+int Cultist::chooseMove() {
+    int mv = -1;
+    if (history.empty()) {
+        mv = 0;
+    } else {
+        mv = 1;
+    }
+    return cur_move = mv;
+}

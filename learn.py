@@ -7,7 +7,7 @@ import random
 import pickle
 import sys
 
-INPUT_NEURS = 26
+INPUT_NEURS = 27
 OUTPUT_NEURS = 16
 
 
@@ -25,18 +25,21 @@ def state_to_tuple(d):
         res[8] = d["mobs"][0]["effects"][0]
         res[9] = d["mobs"][0]["effects"][1]
         res[10] = d["mobs"][0]["effects"][2]
+        res[11] = d["mobs"][0]["effects"][3]
+        last = 12
         for i in range(len(d["hand"])):
-            res[11 + i] = d["hand"][i]
+            res[last + i] = d["hand"][i]
+        last += 5
         for i in range(len(d["pool"])):
-            res[16 + i] = d["pool"][i]
+            res[last + i] = d["pool"][i]
     return res
 
 
 network = nn.Sequential(
     #example of Sequential using, experiemnt with this
-    nn.Linear(INPUT_NEURS, 256),
+    nn.Linear(INPUT_NEURS, 128),
     nn.ReLU(),
-    nn.Linear(256, 256),
+    nn.Linear(128, 256),
     nn.ReLU(),
     nn.Linear(256, 128),
     nn.ReLU(),
@@ -114,7 +117,7 @@ def compute_td_loss(states, actions, rewards, next_states, is_done, gamma = 0.9,
 
 
 opt = torch.optim.Adam(network.parameters(), lr=1e-4)   #create an optim
-epsilon = 0.4 # set default epsilon
+epsilon = 0.3 # set default epsilon
 
 
 def generate_session(t_max=1000, epsilon=0, train=False):
@@ -122,6 +125,15 @@ def generate_session(t_max=1000, epsilon=0, train=False):
     total_reward = 0
     print(-1)
     total_reward = float(input())
+    state = json.loads(input())
+    l_state = state_to_tuple(state)
+    possible_actions = json.loads(input())
+
+    if sys.argv[1] == "JawWorm":
+        print(0)
+    elif sys.argv[1] == "Cultist":
+        print(1)
+    total_reward += float(input())
     state = json.loads(input())
     l_state = state_to_tuple(state)
     possible_actions = json.loads(input())
@@ -153,24 +165,34 @@ from IPython.display import clear_output
 
 logs = open("rewards.log", "w")
 
-for i in range(500):
+for i in range(1000):
     session_rewards = [generate_session(epsilon=epsilon, train=True) for _ in range(100)]#play some sessions (generate_session)
     print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=logs)
     print("epoch #{}\tmean reward = {:.3f}\tepsilon = {:.3f}".format(i, np.mean(session_rewards), epsilon), file=sys.stderr)
     logs.flush()
 
     epsilon *= 0.99 #reduce exploration coef over time
-    if epsilon < 0.2 and np.mean(session_rewards) < 5:
-        epsilon = 0.25
-    if epsilon < 0.1 and np.mean(session_rewards) < 10:
-        epsilon = 0.18
-    if epsilon < 0.05:
-        epsilon = 0.1
-    assert epsilon >= 1e-4, "Make sure epsilon is always nonzero during training"
-
-    if np.mean(session_rewards) >= 20:
-        break
+    if sys.argv[1] == "JawWorm":
+        if epsilon < 0.2 and np.mean(session_rewards) < 0:
+            epsilon = 0.25
+        if epsilon < 0.1 and np.mean(session_rewards) < 5:
+            epsilon = 0.2
+        if epsilon < 0.05:
+            epsilon = 0.1
+        if np.mean(session_rewards) >= 8:
+            break
+    elif sys.argv[1] == "Cultist":
+        if epsilon < 0.2 and np.mean(session_rewards) < -8:
+            epsilon = 0.25
+        if epsilon < 0.15 and np.mean(session_rewards) < -5:
+            epsilon = 0.18
+        if epsilon < 0.1 and np.mean(session_rewards) < 0:
+            epsilon = 0.15
+        if epsilon < 0.05:
+            epsilon = 0.1
+        if np.mean(session_rewards) >= 5:
+            break
 
 print(-2)
 
-pickle.dump(network, open("DQLAgent.sav", "wb"))
+pickle.dump(network, open("newAgent_" + sys.argv[1] + ".sav", "wb"))
