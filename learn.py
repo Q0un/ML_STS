@@ -173,12 +173,12 @@ for i in range(1000):
     epsilon *= 0.99 #reduce exploration coef over time
     if sys.argv[1] == "JawWorm":
         if epsilon < 0.2 and np.mean(session_rewards) < 0:
-            epsilon = 0.25
+            epsilon = 0.21
         if epsilon < 0.1 and np.mean(session_rewards) < 5:
-            epsilon = 0.2
+            epsilon = 0.12
         if epsilon < 0.05:
             epsilon = 0.1
-        if np.mean(session_rewards) >= 8:
+        if np.mean(session_rewards) >= 10:
             break
     elif sys.argv[1] == "Cultist":
         if epsilon < 0.2 and np.mean(session_rewards) < -8:
@@ -189,7 +189,7 @@ for i in range(1000):
             epsilon = 0.15
         if epsilon < 0.05:
             epsilon = 0.1
-        if np.mean(session_rewards) >= 5:
+        if np.mean(session_rewards) >= 15:
             break
 
 print(-2)
