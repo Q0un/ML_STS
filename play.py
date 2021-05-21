@@ -35,10 +35,6 @@ def state_to_tuple(d):
 
 
 def get_action(state, n_actions, epsilon=0):
-    """
-    sample actions with epsilon-greedy policy
-    recap: with p = epsilon pick random action, else pick action with highest Q(s,a)
-    """
     state = Variable(torch.FloatTensor(state[None]))
     q_values = network(state).data.cpu().numpy()
 
@@ -58,7 +54,6 @@ network = nn.Sequential()
 
 def generate_session(t_max=1000, epsilon=0, train=False):
     global network
-    """play env with approximate q-learning agent and train it at the same time"""
     total_reward = 0
     print(-1)
     total_reward = float(input())
@@ -67,6 +62,12 @@ def generate_session(t_max=1000, epsilon=0, train=False):
     possible_actions = json.loads(input())
 
     mob_set = random.randint(0, 1)
+    mob_name = ""
+    if mob_set == 0:
+        mob_name = "Jaw Worm"
+    elif mob_set == 1:
+        mob_name = "Cultist"
+    print(mob_name + "!", file=sys.stderr)
     print(mob_set)
     if mob_set == 0:
         network = pickle.load(open("DQLAgent_JawWorm.sav", "rb"))
@@ -94,7 +95,7 @@ def generate_session(t_max=1000, epsilon=0, train=False):
         if done:
             break
         else:
-            print("Player HP: ", next_state["player"]["hp"], " | ", "Mob HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
+            print("Player HP: ", next_state["player"]["hp"], " | ", mob_name + " HP: ", next_state["mobs"][0]["hp"], file=sys.stderr)
         time.sleep(1)
 
     if state["game_state"] == 1:
