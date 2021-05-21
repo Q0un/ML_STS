@@ -55,10 +55,14 @@ void Env::loadCards() {
     card_pool.emplace_back(card);
 }
 
-void Env::startFight() {
+void Env::startFight(int mob_set) {
     game_state = State::Fight;
 
-    mobs.emplace_back(new JawWorm());
+    if (mob_set == 0) {
+        mobs.emplace_back(new JawWorm());
+    } else if (mob_set == 1) {
+        mobs.emplace_back(new Cultist());
+    }
 
     energy = max_energy;
     pool.clear();
@@ -147,7 +151,7 @@ double Env::step(const Action &act) {
     double rew = 0;
     if (game_state == State::Nothing) {
         if (act.type == ActType::Play) {
-            startFight();
+            startFight(act.args[0]);
         } else {
             assert(0);
         }
@@ -162,11 +166,11 @@ double Env::step(const Action &act) {
                 mob = act.args[1];
             }
             useCard(card, mob);
-            rew = (mobhp_boof - mobsHp()) + 2 * std::min(dmg_remained, player.getDef() - def_boof);
+            rew = (mobhp_boof - mobsHp());
         } else if (act.type == ActType::End) {
             int playerhp_boof = player.getHp();
-            rew = -2 * sumDmg();
             mobTurn();
+            rew = -2 * (playerhp_boof - player.getHp());
 
 
             if (player.dead()) {
@@ -232,7 +236,8 @@ int Env::sumDmg() const {
 void Env::updateActions() {
     available_acts.clear();
     if (game_state == State::Nothing) {
-        available_acts.emplace_back(ActType::Play);
+        available_acts.emplace_back(ActType::Play, std::vector<int>({0}));
+        available_acts.emplace_back(ActType::Play, std::vector<int>({1}));
     } else if (game_state == State::Fight) {
         available_acts.emplace_back(ActType::End);
         for (int i = 0; i < hand.size(); i++) {

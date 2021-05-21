@@ -14,7 +14,7 @@ INPUT_NEURS = 26
 
 
 def state_to_tuple(d):
-    res = np.zeros(26)
+    res = np.zeros(INPUT_NEURS)
     if d["game_state"]["room_phase"] == "COMBAT":
         res[0] = 0
     else:
@@ -23,29 +23,32 @@ def state_to_tuple(d):
         res[1] = d["game_state"]["combat_state"]["player"]["energy"]
         res[2] = d["game_state"]["combat_state"]["player"]["current_hp"]
         res[3] = d["game_state"]["combat_state"]["player"]["block"]
-        res[4] = 0  # type of mob
-        res[5] = d["game_state"]["combat_state"]["monsters"][0]["current_hp"]
-        res[6] = d["game_state"]["combat_state"]["monsters"][0]["block"]
-        res[7] = d["game_state"]["combat_state"]["monsters"][0]["move_id"]
+        res[4] = d["game_state"]["combat_state"]["monsters"][0]["current_hp"]
+        res[5] = d["game_state"]["combat_state"]["monsters"][0]["block"]
+        res[6] = d["game_state"]["combat_state"]["monsters"][0]["move_id"]
         for i in d["game_state"]["combat_state"]["monsters"][0]["powers"]:
             if i["id"] == "Vulnerable":
-                res[8] = i["amount"]
+                res[7] = i["amount"]
             elif i["id"] == "Strength":
+                res[9] = i["amount"]
+            elif i["id"] == "Ritual":
                 res[10] = i["amount"]
+        last = 11
         for i in range(len(d["game_state"]["combat_state"]["hand"])):
             if d["game_state"]["combat_state"]["hand"][i]["id"] == "Strike_R":
-                res[11 + i] = 0
+                res[last + i] = 0
             elif d["game_state"]["combat_state"]["hand"][i]["id"] == "Defend_R":
-                res[11 + i] = 1
+                res[last + i] = 1
             elif d["game_state"]["combat_state"]["hand"][i]["id"] == "Bash":
-                res[11 + i] = 2
+                res[last + i] = 2
+        last += 5
         for i in range(len(d["game_state"]["combat_state"]["draw_pile"])):
             if d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Strike_R":
-                res[16 + i] = 0
+                res[last + i] = 0
             elif d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Defend_R":
-                res[16 + i] = 1
+                res[last + i] = 1
             elif d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Bash":
-                res[16 + i] = 2
+                res[last + i] = 2
     return res
 
 
@@ -82,7 +85,7 @@ def get_possible_actions(state):
     return acts
 
 
-network = pickle.load(open(PATH + "/DQLAgent.sav", "rb"))
+network = nn.Sequential()
 
 
 def generate_session(state0, t_max=1000, epsilon=0):
@@ -90,6 +93,8 @@ def generate_session(state0, t_max=1000, epsilon=0):
     state = state0
     l_state = state_to_tuple(state)
     possible_actions = get_possible_actions(state)
+    mob_name = state["game_state"]["combat_state"]["monsters"][0]["id"]
+    network = pickle.load(open(PATH + "/DQLAgent_" + mob_name + ".sav", "rb"))
 
     for t in range(t_max):
         time.sleep(1)
@@ -121,8 +126,9 @@ while True:
     state = input()
     print("choose 0")
     state = json.loads(input())
-    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "JawWorm":
-        time.sleep(2)
+    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "Cultist" and \
+            state["game_state"]["combat_state"]["monsters"][0]["id"] != "JawWorm":
+        time.sleep(1)
         print("click Left 1910 10")
         state = input()
         print("click Left 1536 240")
