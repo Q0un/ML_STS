@@ -89,8 +89,16 @@ def generate_session(state0, t_max=1000, epsilon=0):
     state = state0
     l_state = state_to_tuple(state)
     possible_actions = get_possible_actions(state)
-    mob_name = state["game_state"]["combat_state"]["monsters"][0]["id"]
-    network = pickle.load(open(PATH + "/DQLAgent_" + mob_name + ".sav", "rb"))
+    room_name = ""
+    if state["game_state"]["combat_state"]["monsters"][0]["name"] == "Cultist":
+        room_name = "Cultist"
+    elif state["game_state"]["combat_state"]["monsters"][0]["name"] == "Jaw Worm":
+        room_name = "JawWorm"
+    elif state["game_state"]["combat_state"]["monsters"][0]["name"] == "Louse":
+        room_name = "2Louse"
+    elif "Slime" in state["game_state"]["combat_state"]["monsters"][0]["name"]:
+        room_name = "SmallSlimes"
+    network = pickle.load(open(PATH + "/DQLAgent_" + room_name + ".sav", "rb"))
 
     for t in range(t_max):
         time.sleep(1)
@@ -122,8 +130,9 @@ while True:
     state = input()
     print("choose 0")
     state = json.loads(input())
-    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "Cultist" and \
-            state["game_state"]["combat_state"]["monsters"][0]["id"] != "JawWorm":
+    if state["game_state"]["combat_state"]["monsters"][0]["name"] != "Cultist" and \
+            state["game_state"]["combat_state"]["monsters"][0]["name"] != "Jaw Worm" and \
+            state["game_state"]["combat_state"]["monsters"][0]["name"] != "Louse":
         time.sleep(1)
         print("click Left 1910 10")
         state = input()

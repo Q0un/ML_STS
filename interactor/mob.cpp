@@ -163,3 +163,59 @@ int Cultist::chooseMove() {
     }
     return cur_move = mv;
 }
+
+// Red Louse
+
+RedLouse::RedLouse() {
+    int hpl = 10;
+    int hpr = 15;
+    max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
+    int Dl = 5;
+    int Dr = 7;
+    D = Dl + rnd() % (Dr - Dl + 1);
+    type = MobType::RedLouse;
+    MobMoves bite(3, { {MobMoveType::Attack, {D, 1}} });
+    MobMoves grow(4, { {MobMoveType::Buff, {(int)Effect::Strength, 3}} });
+    available_moves = {bite, grow};
+    chooseMove();
+    int Xl = 3;
+    int Xr = 7;
+    int X = Xl + rnd() % (Xr - Xl + 1);
+    addEffect(Effect::CurlUp, X);
+}
+
+int RedLouse::chooseMove() {
+    int mv = -1;
+    if (history.size() >= 2 && history.back() == *std::next(history.rbegin())) {
+        mv = history.back() ^ 1;
+    } else {
+        mv = getRandom({75, 25});
+    }
+    return cur_move = mv;
+}
+
+// Green Louse
+
+GreenLouse::GreenLouse() {
+    int hpl = 11;
+    int hpr = 17;
+    max_hp = hp = hpl + rnd() % (hpr - hpl + 1);
+    int Dl = 5;
+    int Dr = 7;
+    D = Dl + rnd() % (Dr - Dl + 1);
+    type = MobType::GreenLouse;
+    MobMoves bite(3, { {MobMoveType::Attack, {D, 1}} });
+    MobMoves spitWeb(-1, { {MobMoveType::Debuff, {(int)Effect::Weak, 2}} });
+    available_moves = {bite, spitWeb};
+    chooseMove();
+}
+
+int GreenLouse::chooseMove() {
+    int mv = -1;
+    if (history.size() >= 2 && history.back() == *std::next(history.rbegin())) {
+        mv = history.back() ^ 1;
+    } else {
+        mv = getRandom({75, 25});
+    }
+    return cur_move = mv;
+}

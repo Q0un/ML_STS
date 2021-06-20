@@ -6,6 +6,7 @@ Entity::Entity(int max_hp) : max_hp(max_hp), hp(max_hp), def(0) {
 
 int Entity::dealDmg(int dmg) const {
     dmg += effects[(int)Effect::Strength];
+    dmg = int(dmg * 0.75);
     return dmg;
 }
 
@@ -17,6 +18,10 @@ void Entity::takeDmg(int dmg) {
     def -= def_dmg;
     dmg -= def_dmg;
     hp = std::max(0, hp - dmg);
+    if (effects[(int)Effect::CurlUp]) {
+        def += (int)Effect::CurlUp;
+        effects[(int)Effect::CurlUp] = 0;
+    }
 }
 
 void Entity::addEffect(Effect e, int val) {
