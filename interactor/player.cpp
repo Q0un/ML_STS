@@ -11,6 +11,10 @@ json Player::getJson() const {
     res["max_hp"] = max_hp;
     res["hp"] = hp;
     res["def"] = def;
+    res["effects"] = json::array();
+    for (int i = 0; i < (int)Effect::N_EFFECTS; i++) {
+        res["effects"].emplace_back(effects[i]);
+    }
     return res;
 }
 
