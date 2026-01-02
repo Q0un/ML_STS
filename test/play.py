@@ -70,9 +70,9 @@ def generate_session(t_max=1000, epsilon=0, train=False):
     print(mob_name + "!", file=sys.stderr)
     print(mob_set)
     if mob_set == 0:
-        network = pickle.load(open("DQLAgent_JawWorm.sav", "rb"))
+        network = pickle.load(open("../saved_models/v1_DQLAgent_JawWorm.sav", "rb"))
     elif mob_set == 1:
-        network = pickle.load(open("DQLAgent_Cultist.sav", "rb"))
+        network = pickle.load(open("../saved_models/v1_DQLAgent_Cultist.sav", "rb"))
     total_reward += float(input())
     state = json.loads(input())
     l_state = state_to_tuple(state)

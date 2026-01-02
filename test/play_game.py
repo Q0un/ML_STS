@@ -83,6 +83,10 @@ def get_possible_actions(state):
 
 network = nn.Sequential()
 
+model_by_mob = {
+    "Cultist": PATH + "../saved_models/v2_NoisyDQN_Cultist.pt",
+    "JawWorm": PATH + "../saved_models/v2_NoisyDQN_JawWorm.pt",
+}
 
 def generate_session(state0, t_max=1000, epsilon=0):
     global network
@@ -90,7 +94,7 @@ def generate_session(state0, t_max=1000, epsilon=0):
     l_state = state_to_tuple(state)
     possible_actions = get_possible_actions(state)
     mob_name = state["game_state"]["combat_state"]["monsters"][0]["id"]
-    network = pickle.load(open(PATH + "/DQLAgent_" + mob_name + ".sav", "rb"))
+    network = pickle.load(open(model_by_mob[mob_name], "rb"))
 
     for t in range(t_max):
         time.sleep(1)
