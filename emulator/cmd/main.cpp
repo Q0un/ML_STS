@@ -1,23 +1,24 @@
-#include "env.h"
 #include <iostream>
 #include <cassert>
-using namespace std;
+
+#include "env.h"
 
 int main() {
     Env env;
 
     while (true) {
-        int x;
-        cin >> x;
+        int32_t x;
+        std::cin >> x;
         if (x == -1) {
-            env.reset();
+            env.Reset();
             std::cout << 0 << std::endl;
-            env.printState();
+            env.PrintState();
             continue;
         } else if (x == -2) {
             break;
         }
-        std::cout << env.step(env.getActs()[x]) << std::endl;
-        env.printState();
+        assert(x >= 0);
+        std::cout << env.Step(env.GetActs()[x]) << std::endl;
+        env.PrintState();
     }
 }

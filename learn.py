@@ -24,7 +24,7 @@ def state_to_tuple(d):
         res[6] = d["mobs"][0]["move"]
         res[7] = d["mobs"][0]["effects"][0]
         res[8] = d["mobs"][0]["effects"][1]
-        res[8] = d["mobs"][0]["effects"][2]
+        res[9] = d["mobs"][0]["effects"][2]
         res[10] = d["mobs"][0]["effects"][3]
         last = 11
         for i in range(len(d["hand"])):
