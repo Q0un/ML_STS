@@ -152,7 +152,7 @@ def state_to_tuple(d, input_size):
     combat = d["game_state"]["combat_state"]
     
     res[0] = combat["player"]["energy"] / 3.0
-    res[1] = combat["player"]["current_hp"] / 80.0
+    res[1] = combat["player"]["current_hp"] / 88.0
     res[2] = combat["player"]["block"] / 10.0
     
     last = 3
@@ -259,7 +259,8 @@ def get_possible_actions(state):
     for i, card in enumerate(combat["hand"], 1):
         if card["cost"] <= combat["player"]["energy"]:
             if card["type"] == "ATTACK":
-                acts.append(f"play {i} 0")
+                for j in range(len(combat["monsters"])):
+                    acts.append(f"play {i} {j}")
             else:
                 acts.append(f"play {i}")
     
