@@ -23,9 +23,7 @@ Env::~Env() {
 }
 
 void Env::Reset() {
-#ifdef LOGGING
     Logs_ << "===============RESET===============\n";
-#endif
     GameState_ = State::Nothing;
     Player_.Reset();
     Pool_.clear();
@@ -42,9 +40,7 @@ void Env::Reset() {
     }
     Deck_.emplace_back(2);
 
-#ifdef LOGGING
     Logs_ << GetState() << std::endl;
-#endif
     UpdateActions();
 }
 
@@ -146,10 +142,9 @@ void Env::UseCard(uint32_t card, int32_t mob) {
 }
 
 double Env::Step(const Action& act) {
-#ifdef LOGGING
     Logs_ << act << std::endl;
-#endif
     double rew = 0;
+    
     if (GameState_ == State::Nothing) {
         if (act.GetType() == ActionType::Play) {
             StartFight(act.GetArgs()[0]);
@@ -158,19 +153,40 @@ double Env::Step(const Action& act) {
         }
     } else if (GameState_ == State::Fight) {
         if (act.GetType() == ActionType::Play) {
+            // ===== АТАКА / ЗАЩИТА =====
             uint32_t card = act.GetArgs()[0];
             int32_t mob = -1;
             uint32_t mobsHpBefore = MobsHp();
+            
             if (act.GetArgs().size() > 1) {
                 mob = act.GetArgs()[1];
             }
             UseCard(card, mob);
-            rew = mobsHpBefore - MobsHp();
+            
+            // +1 за урон (учитываем overkill - не даём награду за лишний урон)
+            uint32_t damageDealt = mobsHpBefore - MobsHp();
+            rew = damageDealt;
+            
         } else if (act.GetType() == ActionType::End) {
+            // ===== КОНЕЦ ХОДА =====
             uint32_t playerHpBefore = Player_.GetHp();
+            uint32_t playerBlockBefore = Player_.GetDef();
+            
             MobTurn();
-            rew = -2 * double(playerHpBefore - Player_.GetHp());
-
+            
+            uint32_t playerBlockAfter = Player_.GetDef();
+            int32_t hpLost = playerHpBefore - Player_.GetHp();
+            
+            // -1 за каждый потерянный HP
+            rew = -hpLost;
+            
+            // +0.2 за РЕАЛЬНО использованный блок
+            // blockUsed = сколько блока "съел" моб
+            uint32_t blockUsed = 0;
+            if (playerBlockBefore > playerBlockAfter) {
+                blockUsed = playerBlockBefore - playerBlockAfter;
+            }
+            rew += blockUsed * 0.2;
 
             if (Player_.Dead()) {
                 GameState_ = State::Lose;
@@ -180,23 +196,32 @@ double Env::Step(const Action& act) {
         } else {
             assert(0);
         }
+        
+        // Проверяем смерть мобов
         for (size_t i = 0; i < Mobs_.size(); i++) {
             if (Mobs_[i]->Dead()) {
                 Mobs_.erase(Mobs_.begin() + i);
                 i--;
             }
         }
+        
+        // ===== ТЕРМИНАЛЬНЫЕ НАГРАДЫ =====
         if (Mobs_.empty()) {
             GameState_ = State::Win;
+            // +30 за победу + 0.3 за каждый оставшийся HP
+            // Это мотивирует: 1) побеждать 2) побеждать быстро/эффективно
+            rew += 30.0 + Player_.GetHp() * 0.3;
+        }
+        if (GameState_ == State::Lose) {
+            // -50 за поражение (сильный штраф)
+            rew -= 50.0;
         }
     } else {
         assert(0);
     }
 
     json res = GetState();
-#ifdef LOGGING
     Logs_ << res << std::endl;
-#endif
 
     UpdateActions();
 

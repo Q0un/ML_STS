@@ -107,3 +107,11 @@ public:
 protected:
     uint32_t ChooseMove() override;
 };
+
+class RedLouse : public Mob {
+public:
+    RedLouse();
+
+protected:
+    uint32_t ChooseMove() override;
+}
