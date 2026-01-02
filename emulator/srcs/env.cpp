@@ -273,7 +273,9 @@ void Env::UpdateActions() {
             if (CardPool_[Hand_[i]].GetCost() <= Energy_) {
                 if (CardPool_[Hand_[i]].GetType() == CardType::Attack) {
                     for (size_t j = 0; j < Mobs_.size(); j++) {
-                        AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({i, j}));
+                        if (!Mobs_[j]->Dead()) {
+                            AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({i, j}));
+                        }
                     }
                 } else if (CardPool_[Hand_[i]].GetType() == CardType::Skill) {
                     AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({i}));

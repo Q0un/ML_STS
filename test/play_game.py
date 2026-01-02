@@ -260,7 +260,8 @@ def get_possible_actions(state):
         if card["cost"] <= combat["player"]["energy"]:
             if card["type"] == "ATTACK":
                 for j in range(len(combat["monsters"])):
-                    acts.append(f"play {i} {j}")
+                    if combat["monsters"][j]["current_hp"] > 0:
+                        acts.append(f"play {i} {j}")
             else:
                 acts.append(f"play {i}")
     
