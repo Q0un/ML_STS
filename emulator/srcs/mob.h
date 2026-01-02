@@ -9,6 +9,8 @@
 enum class MobType{
     JawWorm,
     Cultist,
+    RedLouse,
+    GreenLouse,
     None
 };
 
@@ -114,4 +116,12 @@ public:
 
 protected:
     uint32_t ChooseMove() override;
-}
+};
+
+class GreenLouse : public Mob {
+public:
+    GreenLouse();
+
+protected:
+    uint32_t ChooseMove() override;
+};

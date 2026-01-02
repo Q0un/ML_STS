@@ -8,29 +8,36 @@ import pickle
 import sys
 import time
 
-INPUT_NEURS = 26
+INPUT_NEURS = 21
 
 
-def state_to_tuple(d):
-    res = np.zeros(INPUT_NEURS)
-    res[0] = d["game_state"]
+def state_to_tuple(d, input_size):
+    """Конвертирует JSON состояние в вектор признаков (с нормализацией)"""
+    res = np.zeros(input_size)
     if d["game_state"] == 0:
-        res[1] = d["energy"]
-        res[2] = d["player"]["hp"]
-        res[3] = d["player"]["def"]
-        res[4] = d["mobs"][0]["type"]
-        res[5] = d["mobs"][0]["hp"]
-        res[6] = d["mobs"][0]["def"]
-        res[7] = d["mobs"][0]["effects"][0]
-        res[8] = d["mobs"][0]["effects"][1]
-        res[9] = d["mobs"][0]["effects"][2]
-        res[10] = d["mobs"][0]["effects"][3]
-        last = 11
+        # Нормализуем все признаки в диапазон ~0-1
+        res[0] = d["energy"] / 3.0           # энергия: 0-3 → 0-1
+        res[1] = d["player"]["hp"] / 80.0    # HP игрока: 0-80 → 0-1
+        res[2] = d["player"]["def"] / 10.0   # блок: 0-10 → 0-1
+        last = 3
         for i in range(len(d["hand"])):
-            res[last + i] = d["hand"][i]
-        last += 5
+            res[last + i] = d["hand"][i] / 2.0  # card_id: 0-2 → 0-1
+        last += len(d["hand"])
         for i in range(len(d["pool"])):
-            res[last + i] = d["pool"][i]
+            res[last + i] = d["pool"][i] / 2.0
+        last += len(d["pool"])
+        for i in range(len(d["mobs"])):
+            res[last] = d["mobs"][i]["type"] / 5.0       # тип моба
+            res[last + 1] = d["mobs"][i]["hp"] / 60.0     # HP моба: 0-60 → 0-1
+            res[last + 2] = d["mobs"][i]["def"] / 10.0    # блок моба
+            res[last + 3] = d["mobs"][i]["move"] / 5.0    # move_id
+            res[last + 4] = d["mobs"][i]["effects"][0] / 5.0  # Vulnerable
+            res[last + 5] = d["mobs"][i]["effects"][1] / 5.0  # Weak
+            res[last + 6] = d["mobs"][i]["effects"][3] / 5.0  # Strength
+            res[last + 7] = d["mobs"][i]["effects"][4] / 5.0  # Ritual
+            res[last + 8] = d["mobs"][i]["effects"][5] / 10.0 # CurlUp
+            last += 9
+
     return res
 
 
@@ -58,7 +65,6 @@ def generate_session(t_max=1000, epsilon=0, train=False):
     print(-1)
     total_reward = float(input())
     state = json.loads(input())
-    l_state = state_to_tuple(state)
     possible_actions = json.loads(input())
 
     mob_set = random.randint(0, 1)
@@ -67,15 +73,20 @@ def generate_session(t_max=1000, epsilon=0, train=False):
         mob_name = "Jaw Worm"
     elif mob_set == 1:
         mob_name = "Cultist"
+    elif mob_set == 2:
+        mob_name = "Louses"
     print(mob_name + "!", file=sys.stderr)
     print(mob_set)
     if mob_set == 0:
         network = pickle.load(open("../saved_models/v1_DQLAgent_JawWorm.sav", "rb"))
     elif mob_set == 1:
         network = pickle.load(open("../saved_models/v1_DQLAgent_Cultist.sav", "rb"))
+    elif mob_set == 2:
+        network = pickle.load(open("../saved_models/v1_DQLAgent_Louses.sav", "rb"))
+    input_sizes = {0: 21, 1: 21, 2: 29}
     total_reward += float(input())
     state = json.loads(input())
-    l_state = state_to_tuple(state)
+    l_state = state_to_tuple(state, input_sizes[mob_set])
     possible_actions = json.loads(input())
 
     for t in range(t_max):
@@ -83,7 +94,7 @@ def generate_session(t_max=1000, epsilon=0, train=False):
         print(a)
         reward = float(input())
         next_state = json.loads(input())
-        l_next_state = state_to_tuple(next_state)
+        l_next_state = state_to_tuple(next_state, input_sizes[mob_set])
         next_possible_actions = json.loads(input())
 
         done = (l_next_state[0] == 1) or (l_next_state[0] == 2)

@@ -8,6 +8,9 @@ Entity::Entity(uint32_t maxHp)
 
 uint32_t Entity::DealDmg(uint32_t dmg) const {
     dmg += Effects_[static_cast<size_t>(Effect::Strength)];
+    if (Effects_[static_cast<size_t>(Effect::Weak)]) {
+        dmg = dmg * 3 / 4;
+    }
     return dmg;
 }
 
@@ -22,6 +25,11 @@ void Entity::TakeDmg(uint32_t dmg) {
         Hp_ = 0;
     } else {
         Hp_ -= dmg;
+    }
+
+    if (Effects_[static_cast<size_t>(Effect::CurlUp)]) {
+        Def_ += Effects_[static_cast<size_t>(Effect::CurlUp)];
+        Effects_[static_cast<size_t>(Effect::CurlUp)] = 0;
     }
 }
 

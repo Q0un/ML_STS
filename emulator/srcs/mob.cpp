@@ -177,3 +177,93 @@ uint32_t Cultist::ChooseMove() {
     }
     return CurMove_ = mv;
 }
+
+// Red Louse
+
+RedLouse::RedLouse() {
+    static const uint32_t HP_L = 10;
+    static const uint32_t HP_R = 16;
+    MaxHp_ = Hp_ = Random::GetInstance()(HP_L, HP_R);
+    Type_ = MobType::RedLouse;
+
+    static const uint32_t CURL_UP_L = 3;
+    static const uint32_t CURL_UP_R = 8;
+    AddEffect(Effect::CurlUp, Random::GetInstance()(CURL_UP_L, CURL_UP_R));
+
+    static const uint32_t DMG_L = 5;
+    static const uint32_t DMG_R = 8;
+    MobMoves bite(
+        3,
+        {
+            new MobMoveAttack(Random::GetInstance()(DMG_L, DMG_R), 1)
+        }
+    );
+    MobMoves grow(
+        4,
+        {
+            new MobMoveBuff(Effect::Strength, 3),
+        }
+    );
+
+    AvailableMoves_ = {bite, grow};
+    ChooseMove();
+}
+
+uint32_t RedLouse::ChooseMove() {
+    uint32_t mv = 0;
+    if (History_.size() < 2 || History_.back() != History_[History_.size() - 2]) {
+        mv = Random::GetInstance()({75, 25});
+    } else {
+        if (History_.back() == 0) {
+            mv = 1;
+        } else {
+            mv = 0;
+        }
+    }
+    return CurMove_ = mv;
+}
+
+// Green Louse
+
+GreenLouse::GreenLouse() {
+    static const uint32_t HP_L = 11;
+    static const uint32_t HP_R = 18;
+    MaxHp_ = Hp_ = Random::GetInstance()(HP_L, HP_R);
+    Type_ = MobType::GreenLouse;
+
+    static const uint32_t CURL_UP_L = 3;
+    static const uint32_t CURL_UP_R = 8;
+    AddEffect(Effect::CurlUp, Random::GetInstance()(CURL_UP_L, CURL_UP_R));
+
+    static const uint32_t DMG_L = 5;
+    static const uint32_t DMG_R = 8;
+    MobMoves bite(
+        3,
+        {
+            new MobMoveAttack(Random::GetInstance()(DMG_L, DMG_R), 1)
+        }
+    );
+    MobMoves spitWeb(
+        4,
+        {
+            new MobMoveDebuff(Effect::Weak, 2),
+        }
+    );
+
+    AvailableMoves_ = {bite, spitWeb};
+    ChooseMove();
+}
+
+uint32_t GreenLouse::ChooseMove() {
+    uint32_t mv = 0;
+    if (History_.size() < 2 || History_.back() != History_[History_.size() - 2]) {
+        mv = Random::GetInstance()({75, 25});
+    } else {
+        if (History_.back() == 0) {
+            mv = 1;
+        } else {
+            mv = 0;
+        }
+    }
+    return CurMove_ = mv;
+}

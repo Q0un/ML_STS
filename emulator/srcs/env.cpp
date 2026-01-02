@@ -1,7 +1,7 @@
 #include "env.h"
 
 Env::Env()
-    : Player_(80)
+    : Player_(88)
 {
     Logs_ = std::ofstream(std::string(PROJECT_DIR) + "/env.log");
 
@@ -59,6 +59,18 @@ void Env::StartFight(uint32_t mobSetId) {
         Mobs_.emplace_back(new JawWorm());
     } else if (mobSetId == 1) {
         Mobs_.emplace_back(new Cultist());
+    } else if (mobSetId == 2) {
+        if (Random::GetInstance()(2)) {
+            Mobs_.emplace_back(new RedLouse());
+        } else {
+            Mobs_.emplace_back(new GreenLouse());
+        }
+
+        if (Random::GetInstance()(2)) {
+            Mobs_.emplace_back(new RedLouse());
+        } else {
+            Mobs_.emplace_back(new GreenLouse());
+        }
     }
 
     Energy_ = MaxEnergy_;
@@ -206,15 +218,15 @@ double Env::Step(const Action& act) {
         }
         
         // ===== ТЕРМИНАЛЬНЫЕ НАГРАДЫ =====
+        // Уменьшены для стабильности обучения (сопоставимы с обычными наградами -5..+6)
         if (Mobs_.empty()) {
             GameState_ = State::Win;
-            // +30 за победу + 0.3 за каждый оставшийся HP
-            // Это мотивирует: 1) побеждать 2) побеждать быстро/эффективно
-            rew += 30.0 + Player_.GetHp() * 0.3;
+            // +10 за победу + небольшой бонус за HP
+            rew += 10.0 + Player_.GetHp() * 0.05;
         }
         if (GameState_ == State::Lose) {
-            // -50 за поражение (сильный штраф)
-            rew -= 50.0;
+            // -15 за поражение
+            rew -= 15.0;
         }
     } else {
         assert(0);
@@ -254,6 +266,7 @@ void Env::UpdateActions() {
     if (GameState_ == State::Nothing) {
         AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({0}));
         AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({1}));
+        AvailableActs_.emplace_back(ActionType::Play, std::vector<int32_t>({2}));
     } else if (GameState_ == State::Fight) {
         AvailableActs_.emplace_back(ActionType::End);
         for (size_t i = 0; i < Hand_.size(); i++) {

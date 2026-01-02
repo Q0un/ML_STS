@@ -15,40 +15,52 @@ INPUT_NEURS = 26
 
 def state_to_tuple(d):
     res = np.zeros(INPUT_NEURS)
-    if d["game_state"]["room_phase"] == "COMBAT":
-        res[0] = 0
-    else:
-        res[0] = 1
     if res[0] == 0:
-        res[1] = d["game_state"]["combat_state"]["player"]["energy"]
-        res[2] = d["game_state"]["combat_state"]["player"]["current_hp"]
-        res[3] = d["game_state"]["combat_state"]["player"]["block"]
-        res[4] = d["game_state"]["combat_state"]["monsters"][0]["current_hp"]
-        res[5] = d["game_state"]["combat_state"]["monsters"][0]["block"]
-        res[6] = d["game_state"]["combat_state"]["monsters"][0]["move_id"]
-        for i in d["game_state"]["combat_state"]["monsters"][0]["powers"]:
-            if i["id"] == "Vulnerable":
-                res[7] = i["amount"]
-            elif i["id"] == "Strength":
-                res[9] = i["amount"]
-            elif i["id"] == "Ritual":
-                res[10] = i["amount"]
-        last = 11
+        res[0] = d["game_state"]["combat_state"]["player"]["energy"] / 3.0
+        res[1] = d["game_state"]["combat_state"]["player"]["current_hp"] / 80.0
+        res[2] = d["game_state"]["combat_state"]["player"]["block"] / 10.0
+        last = 3
         for i in range(len(d["game_state"]["combat_state"]["hand"])):
             if d["game_state"]["combat_state"]["hand"][i]["id"] == "Strike_R":
-                res[last + i] = 0
+                res[last + i] = 0 / 2.0
             elif d["game_state"]["combat_state"]["hand"][i]["id"] == "Defend_R":
-                res[last + i] = 1
+                res[last + i] = 1 / 2.0
             elif d["game_state"]["combat_state"]["hand"][i]["id"] == "Bash":
-                res[last + i] = 2
-        last += 5
+                res[last + i] = 2 / 2.0
+        last += len(d["game_state"]["combat_state"]["hand"])
         for i in range(len(d["game_state"]["combat_state"]["draw_pile"])):
             if d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Strike_R":
-                res[last + i] = 0
+                res[last + i] = 0 / 2.0
             elif d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Defend_R":
-                res[last + i] = 1
+                res[last + i] = 1 / 2.0
             elif d["game_state"]["combat_state"]["draw_pile"][i]["id"] == "Bash":
-                res[last + i] = 2
+                res[last + i] = 2 / 2.0
+        last += len(d["game_state"]["combat_state"]["draw_pile"])
+        for i in range(len(d["game_state"]["combat_state"]["monsters"])):
+            if d["game_state"]["combat_state"]["monsters"][i]["id"] == "JawWorm":
+                res[last] = 0 / 5.0
+            elif d["game_state"]["combat_state"]["monsters"][i]["id"] == "Cultist":
+                res[last] = 1 / 5.0
+            elif d["game_state"]["combat_state"]["monsters"][i]["id"] == "FuzzyLouseNormal":
+                res[last] = 2 / 5.0
+            elif d["game_state"]["combat_state"]["monsters"][i]["id"] == "FuzzyLouseDefensive":
+                res[last] = 3 / 5.0
+            res[last] = d["game_state"]["combat_state"]["monsters"][i]["current_hp"] / 60.0
+            res[last + 1] = d["game_state"]["combat_state"]["monsters"][i]["block"] / 10.0
+            res[last + 2] = d["game_state"]["combat_state"]["monsters"][i]["move_id"] / 5.0
+            for j in d["game_state"]["combat_state"]["monsters"][i]["powers"]:
+                if j["id"] == "Vulnerable":
+                    res[last + 3] = j["amount"] / 5.0
+                elif j["id"] == "Weak":
+                    res[last + 4] = j["amount"] / 5.0
+                elif j["id"] == "Strength":
+                    res[last + 5] = j["amount"] / 5.0
+                elif j["id"] == "Ritual":
+                    res[last + 6] = j["amount"] / 5.0
+                elif j["id"] == "CurlUp":
+                    res[last + 7] = j["amount"] / 10.0
+            last += 8
+        
     return res
 
 
@@ -86,6 +98,8 @@ network = nn.Sequential()
 model_by_mob = {
     "Cultist": PATH + "../saved_models/v2_NoisyDQN_Cultist.pt",
     "JawWorm": PATH + "../saved_models/v2_NoisyDQN_JawWorm.pt",
+    "FuzzyLouseNormal": PATH + "../saved_models/v2_NoisyDQN_Louses.pt",
+    "FuzzyLouseDefensive": PATH + "../saved_models/v2_NoisyDQN_Louses.pt",
 }
 
 def generate_session(state0, t_max=1000, epsilon=0):
@@ -126,20 +140,5 @@ while True:
     state = input()
     print("choose 0")
     state = json.loads(input())
-    if state["game_state"]["combat_state"]["monsters"][0]["id"] != "Cultist" and \
-            state["game_state"]["combat_state"]["monsters"][0]["id"] != "JawWorm":
-        time.sleep(1)
-        print("click Left 1910 10")
-        state = input()
-        print("click Left 1536 240")
-        state = input()
-        print("click Left 890 685")
-        state = input()
-        print("click Left 890 685")
-        state = input()
-        print("click Left 900 950")
-        state = input()
-        print("click Left 900 950")
-        state = input()
-    else:
+    if state["game_state"]["combat_state"]["monsters"][0]["id"] in model_by_mob.keys():
         generate_session(state)

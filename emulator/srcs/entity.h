@@ -6,9 +6,11 @@
 
 enum class Effect{
     Vulnerable,
+    Weak,
     N_TEMPORARY_EFFECTS,
     Strength,
     Ritual,
+    CurlUp,
     N_EFFECTS
 };
 
